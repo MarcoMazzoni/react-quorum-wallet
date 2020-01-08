@@ -13,16 +13,37 @@ import {
 
 import Header from '../components/Header';
 
-import { myContract, web3 } from '../contract/Contract';
-import { TransactionReceiptCustom } from '../interfaces/Send.interface';
+import {
+  myContract,
+  web3_node1,
+  web3_node2,
+  web3_node3
+} from '../contract/Contract';
 
-class Home extends React.Component<
-  {},
-  { res: string; rec: TransactionReceiptCustom; methodName: string }
-> {
+import { TransactionReceiptCustom } from '../interfaces/Send.interface';
+import { Dispatch, bindActionCreators } from 'redux';
+import { AppActions } from '../interfaces/Actions.interface';
+import { ThunkDispatch } from 'redux-thunk';
+import { QuorumNode } from '../interfaces/Node.interface';
+import { AppState } from '../store/configureStore';
+import { changeNode } from '../actions/nodes';
+import { connect } from 'react-redux';
+
+interface HomeState {
+  res: string;
+  rec: TransactionReceiptCustom;
+  accounts: string[];
+  methodName: string;
+}
+
+interface HomeProps {}
+
+type Props = HomeProps & LinkStateProps & LinkDispatchProps;
+
+export class Home extends React.Component<Props, HomeState> {
   insertValueRef: React.RefObject<HTMLInputElement>;
-  constructor() {
-    super({});
+  constructor(props: Props) {
+    super(props);
     this.state = {
       res: '',
       rec: {
@@ -36,26 +57,51 @@ class Home extends React.Component<
         cumulativeGasUsed: 0,
         gasUsed: 0
       },
+      accounts: ['', ''],
       methodName: ''
     };
     this.insertValueRef = React.createRef();
-    this.getMethod = this.getMethod.bind(this);
+    this.getBalance = this.getBalance.bind(this);
+    this.getAllAccounts = this.getAllAccounts.bind(this);
     //this.setMethod = this.setMethod.bind(this);
   }
 
   async getAccountZero() {
-    let accounts: string[] = await web3.eth.getAccounts();
+    let accounts: string[] = await web3_node1.eth.getAccounts();
     let accountZero: string = accounts[0];
     return accountZero;
   }
 
-  async getMethod() {
+  async getBalance() {
     let accountZero: string = await this.getAccountZero();
     myContract.methods
       .balanceOf(accountZero)
       .call()
       .then(response => this.setState({ res: response, methodName: 'GET' }));
-    this.renderAnswer();
+    //this.renderAnswer();
+  }
+
+  async getAllAccounts() {
+    let accountsNode1: string[] = await web3_node1.eth.getAccounts();
+    let accountsNode2: string[] = await web3_node2.eth.getAccounts();
+    let accountsNode3: string[] = await web3_node3.eth.getAccounts();
+    let newAccounts: string[] = [
+      ...accountsNode1,
+      ...accountsNode2,
+      ...accountsNode3
+    ];
+    this.setState({ accounts: newAccounts, methodName: 'SET' });
+  }
+
+  printAccountList() {
+    let accountList: string[] = this.state.accounts;
+    return accountList.map((value, index) => {
+      return (
+        <h3 className="text-white mb-0">
+          {index.toString()}: {value.toString()}
+        </h3>
+      );
+    });
   }
 
   /*
@@ -91,6 +137,10 @@ class Home extends React.Component<
   }
   */
 
+  changeNode(node: QuorumNode) {
+    this.props.startChangeNode(node);
+  }
+
   renderReceipt(receipt: TransactionReceiptCustom) {
     return Object.entries(receipt).map(key => {
       return (
@@ -104,9 +154,10 @@ class Home extends React.Component<
   renderAnswer() {
     if (this.state.methodName === 'GET')
       return <h3 className="text-white mb-0"> {this.state.res} </h3>;
-    else if (this.state.methodName === 'SET') {
-      return <ul>{this.renderReceipt(this.state.rec)}</ul>;
-    } else return <p> Click a Method Button please </p>;
+    else if (this.state.methodName === 'SET')
+      //return <ul>{this.renderReceipt(this.state.rec)}</ul>;
+      return <ul>{this.printAccountList()}</ul>;
+    else return <p> Click a Method Button please </p>;
   }
 
   render() {
@@ -152,7 +203,7 @@ class Home extends React.Component<
                     <Button
                       color="primary"
                       size="lg"
-                      onClick={this.getMethod}
+                      onClick={this.getBalance}
                       block
                     >
                       GET
@@ -164,13 +215,39 @@ class Home extends React.Component<
                       placeholder="Insert value"
                       innerRef={this.insertValueRef}
                     />
-                    <Button color="info" size="lg" block>
-                      SET
+                    <Button
+                      color="info"
+                      size="lg"
+                      onClick={this.getAllAccounts}
+                      block
+                    >
+                      Get All Accounts
+                    </Button>{' '}
+                  </div>
+                  <div>
+                    <Button
+                      color="primary"
+                      size="lg"
+                      onClick={() => this.changeNode({ name: 'Node3' })}
+                      block
+                    >
+                      Change Node
                     </Button>{' '}
                   </div>
                 </CardBody>
               </Card>
             </Col>
+          </Row>
+          <Row>
+            <Card className="bg-gradient-default shadow">
+              <CardBody>
+                {/* Chart */}
+                <h3 className="text-white mb-0">
+                  You are logged in as
+                  <h2 className="text-white mb-0">{this.props.node.name}</h2>
+                </h3>
+              </CardBody>
+            </Card>
           </Row>
         </Container>
       </>
@@ -178,4 +255,25 @@ class Home extends React.Component<
   }
 }
 
-export default Home;
+interface LinkStateProps {
+  node: QuorumNode;
+}
+interface LinkDispatchProps {
+  startChangeNode: (node: QuorumNode) => void;
+}
+
+const mapStateToProps = (
+  state: AppState,
+  ownProps: HomeProps
+): LinkStateProps => ({
+  node: state.node
+});
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, AppActions>,
+  ownProps: HomeProps
+): LinkDispatchProps => ({
+  startChangeNode: bindActionCreators(changeNode, dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

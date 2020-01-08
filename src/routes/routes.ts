@@ -31,6 +31,6 @@ export interface MyRoute {
   path: string;
   name: string;
   icon: string;
-  component: typeof React.Component;
+  component: any;
   layout: string;
 }

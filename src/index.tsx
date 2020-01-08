@@ -5,6 +5,9 @@ import PageLayout from './views/PageLayout';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
+import { Provider } from 'react-redux';
+import { store } from './store/configureStore';
+
 import './assets/vendor/nucleo/css/nucleo.css';
 import './assets/vendor/@fortawesome/fontawesome-free/css/all.min.css';
 import './assets/scss/argon-dashboard-react.scss';
@@ -15,12 +18,14 @@ import './assets/scss/argon-dashboard-react.scss';
 //ReactDOM.render(<Home />, document.getElementById('root'));
 
 ReactDOM.render(
-  <BrowserRouter>
-    <Switch>
-      <Route path="/page" render={props => <PageLayout {...props} />} />
-      <Redirect from="/" to="/page/home" />
-    </Switch>
-  </BrowserRouter>,
+  <Provider store={store}>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/page" render={props => <PageLayout {...props} />} />
+        <Redirect from="/" to="/page/home" />
+      </Switch>
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('root')
 );
 
