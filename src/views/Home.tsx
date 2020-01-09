@@ -20,13 +20,15 @@ import {
   web3_node3
 } from '../contract/Contract';
 
+import { getWeb3ProviderFromNode } from '../contract/utils';
+
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
 import { Dispatch, bindActionCreators } from 'redux';
 import { AppActions } from '../interfaces/Actions.interface';
 import { ThunkDispatch } from 'redux-thunk';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { AppState } from '../store/configureStore';
-import { changeNode } from '../actions/nodes';
+import { changeNode, changeAccount } from '../actions/nodes';
 import { connect } from 'react-redux';
 
 interface HomeState {
@@ -137,8 +139,11 @@ export class Home extends React.Component<Props, HomeState> {
   }
   */
 
-  changeNode(node: QuorumNode) {
+  async changeNode(node: QuorumNode) {
     this.props.startChangeNode(node);
+    let web3Provider = getWeb3ProviderFromNode(node.name);
+    let accountList: string[] = await web3Provider.eth.getAccounts();
+    this.props.startChangeAccount(accountList[0]);
   }
 
   renderReceipt(receipt: TransactionReceiptCustom) {
@@ -163,7 +168,7 @@ export class Home extends React.Component<Props, HomeState> {
   render() {
     return (
       <>
-        <Header />
+        <Header node={this.props.node} />
         {/* Page content */}
         <Container className="mt--7" fluid>
           <Row>
@@ -228,7 +233,9 @@ export class Home extends React.Component<Props, HomeState> {
                     <Button
                       color="primary"
                       size="lg"
-                      onClick={() => this.changeNode({ name: 'Node3' })}
+                      onClick={() =>
+                        this.changeNode({ name: 'Node3', account: '0x0' })
+                      }
                       block
                     >
                       Change Node
@@ -260,6 +267,7 @@ interface LinkStateProps {
 }
 interface LinkDispatchProps {
   startChangeNode: (node: QuorumNode) => void;
+  startChangeAccount: (account: string) => void;
 }
 
 const mapStateToProps = (
@@ -273,7 +281,8 @@ const mapDispatchToProps = (
   dispatch: ThunkDispatch<any, any, AppActions>,
   ownProps: HomeProps
 ): LinkDispatchProps => ({
-  startChangeNode: bindActionCreators(changeNode, dispatch)
+  startChangeNode: bindActionCreators(changeNode, dispatch),
+  startChangeAccount: bindActionCreators(changeAccount, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
