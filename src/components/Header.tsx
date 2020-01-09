@@ -74,6 +74,7 @@ class Header extends React.Component<HeaderProps> {
                   <ClickableHeaderCard
                     cardTitle="Quorum Node"
                     cardContent={this.props.node.name}
+                    node={this.props.node}
                     iconColor="icon icon-shape bg-yellow text-white rounded-circle shadow"
                     iconType="fas fa-cloud"
                   />
@@ -82,6 +83,7 @@ class Header extends React.Component<HeaderProps> {
                   <ClickableHeaderCard
                     cardTitle="Account Address"
                     cardContent={this.props.node.account}
+                    node={this.props.node}
                     iconColor="icon icon-shape bg-green text-white rounded-circle shadow"
                     iconType="fas fa-user"
                   />

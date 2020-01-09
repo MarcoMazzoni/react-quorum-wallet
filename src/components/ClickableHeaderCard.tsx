@@ -1,5 +1,27 @@
 import * as React from 'react';
-import { Card, CardBody, CardTitle, Row, Col, Alert } from 'reactstrap';
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  Row,
+  Col,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  FormGroup,
+  Label,
+  Input
+} from 'reactstrap';
+import { nodeList, getAccountListFromNode } from '../contract/utils';
+import { QuorumNode } from '../interfaces/Node.interface';
+import { AppState } from '../store/configureStore';
+import { AppActions } from '../interfaces/Actions.interface';
+import { changeNode, changeAccount } from '../actions/nodes';
+import { ThunkDispatch } from 'redux-thunk';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 interface ClickableCardProps {
   cardTitle: string;
@@ -9,39 +31,75 @@ interface ClickableCardProps {
 }
 
 interface ClickableCardState {
-  showMenu: boolean;
+  modal: boolean;
+  accounts: string[];
 }
 
+type Props = ClickableCardProps & LinkStateProps & LinkDispatchProps;
+
 export class ClickableHeaderCard extends React.Component<
-  ClickableCardProps,
+  Props,
   ClickableCardState
 > {
-  constructor(props: ClickableCardProps) {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      showMenu: false
+      modal: false,
+      accounts: []
     };
-    this.showMenu = this.showMenu.bind(this);
-    this.closeMenu = this.closeMenu.bind(this);
+    this.toggle = this.toggle.bind(this);
   }
 
-  showMenu() {
-    this.setState({ showMenu: true }, () => {
-      document.addEventListener('click', this.closeMenu);
+  toggle() {
+    const oldState: boolean = this.state.modal;
+    this.setState({ modal: !oldState });
+  }
+
+  listNodes() {
+    return nodeList.map((node: string) => {
+      return (
+        <FormGroup check>
+          <Label check>
+            <Input type="radio" name="radio1" /> {node}
+          </Label>
+        </FormGroup>
+      );
     });
   }
 
-  closeMenu() {
-    this.setState({ showMenu: false }, () => {
-      document.removeEventListener('click', this.closeMenu);
+  componentDidMount() {
+    let nodeName: string = this.props.node.name;
+    getAccountListFromNode(nodeName).then(accountList => {
+      this.setState({ accounts: accountList });
     });
+  }
+
+  isQuorum(): boolean {
+    if (this.props.cardTitle.includes('Quorum')) return true;
+    return false;
+  }
+
+  showList() {
+    if (this.isQuorum()) {
+      return this.listNodes();
+    } else {
+      return this.state.accounts.map((account: string) => {
+        return (
+          <FormGroup check>
+            <Label check>
+              <Input type="radio" name="radio1" /> {account}
+            </Label>
+          </FormGroup>
+        );
+      });
+    }
   }
 
   render() {
     return (
       <>
         <Card
-          onClick={this.showMenu}
+          onClick={this.toggle}
           style={{ cursor: 'pointer' }}
           className="card-stats mb-4 mb-xl-0"
         >
@@ -62,13 +120,61 @@ export class ClickableHeaderCard extends React.Component<
               </Col>
             </Row>
           </CardBody>
-          {this.state.showMenu ? (
-            <Alert color="primary">
-              This is a primary alert — check it out!
-            </Alert>
-          ) : null}
         </Card>
+        <Modal isOpen={this.state.modal} toggle={this.toggle}>
+          <ModalHeader
+            toggle={this.toggle}
+            className="text-uppercase text-muted mb-0"
+          >
+            {this.isQuorum() ? 'Choose Quorum Node' : 'Choose address'}
+          </ModalHeader>
+          <ModalBody>
+            <FormGroup tag="fieldset">
+              <legend>
+                {' '}
+                {this.isQuorum() ? 'Connect to:' : 'Login with:'}
+              </legend>
+              {this.showList()}
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="success" onClick={this.toggle}>
+              Confirm
+            </Button>{' '}
+            <Button color="danger" onClick={this.toggle}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
       </>
     );
   }
 }
+
+interface LinkStateProps {
+  node: QuorumNode;
+}
+interface LinkDispatchProps {
+  startChangeNode?: (node: QuorumNode) => void;
+  startChangeAccount?: (account: string) => void;
+}
+
+const mapStateToProps = (
+  state: AppState,
+  ownProps: ClickableCardProps
+): LinkStateProps => ({
+  node: state.node
+});
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, AppActions>,
+  ownProps: ClickableCardProps
+): LinkDispatchProps => ({
+  startChangeNode: bindActionCreators(changeNode, dispatch),
+  startChangeAccount: bindActionCreators(changeAccount, dispatch)
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ClickableHeaderCard);

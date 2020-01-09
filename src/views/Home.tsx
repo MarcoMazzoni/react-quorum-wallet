@@ -18,7 +18,7 @@ import {
   web3_node1,
   web3_node2,
   web3_node3
-} from '../contract/Contract';
+} from '../contract/contractConfiguration';
 
 import { getWeb3ProviderFromNode } from '../contract/utils';
 
