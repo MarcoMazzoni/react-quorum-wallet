@@ -2,10 +2,13 @@ import { QuorumNode } from '../interfaces/Node.interface';
 import {
   NodeActionTypes,
   CHANGE_NODE,
-  CHANGE_ACCOUNT
+  CHANGE_ACCOUNT_LIST
 } from '../interfaces/Actions.interface';
 
-const nodeReducerDefaultState: QuorumNode = { name: 'Node1', account: '0x0' };
+const nodeReducerDefaultState: QuorumNode = {
+  name: 'Node1',
+  accounts: ['0x0']
+};
 
 const nodeReducer = (
   state = nodeReducerDefaultState,
@@ -14,7 +17,7 @@ const nodeReducer = (
   switch (action.type) {
     case CHANGE_NODE:
       return action.node;
-    case CHANGE_ACCOUNT:
+    case CHANGE_ACCOUNT_LIST:
       return {
         ...state,
         ...action

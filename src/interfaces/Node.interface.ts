@@ -1,4 +1,4 @@
 export interface QuorumNode {
   name: string;
-  account: string;
+  accounts: string[];
 }

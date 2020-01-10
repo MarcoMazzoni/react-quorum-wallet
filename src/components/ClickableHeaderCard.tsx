@@ -12,16 +12,20 @@ import {
   Button,
   FormGroup,
   Label,
-  Input
+  Input,
+  CustomInput,
+  Container
 } from 'reactstrap';
 import { nodeList, getAccountListFromNode } from '../contract/utils';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { AppState } from '../store/configureStore';
 import { AppActions } from '../interfaces/Actions.interface';
-import { changeNode, changeAccount } from '../actions/nodes';
+import { changeNode } from '../actions/nodes';
 import { ThunkDispatch } from 'redux-thunk';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { string } from 'prop-types';
+import { LinkStateProps, LinkDispatchProps } from '../views/Home';
 
 interface ClickableCardProps {
   cardTitle: string;
@@ -32,7 +36,7 @@ interface ClickableCardProps {
 
 interface ClickableCardState {
   modal: boolean;
-  accounts: string[];
+  radio: string;
 }
 
 type Props = ClickableCardProps & LinkStateProps & LinkDispatchProps;
@@ -45,9 +49,12 @@ export class ClickableHeaderCard extends React.Component<
     super(props);
     this.state = {
       modal: false,
-      accounts: []
+      radio: ''
     };
     this.toggle = this.toggle.bind(this);
+    this.onRadioSelect = this.onRadioSelect.bind(this);
+    this.onConfirmClickAccount = this.onConfirmClickAccount.bind(this);
+    this.onConfirmClickNode = this.onConfirmClickNode.bind(this);
   }
 
   toggle() {
@@ -55,22 +62,58 @@ export class ClickableHeaderCard extends React.Component<
     this.setState({ modal: !oldState });
   }
 
+  onConfirmClickNode() {
+    let nodeName: string = this.state.radio;
+    this.props.startChangeNode(nodeName);
+    /*
+    getAccountListFromNode(nodeName).then(accountList => {
+      this.setState({ accounts: accountList });
+      //this.props.startChangeAccount(accountList[0]);
+    });
+    */
+    this.toggle();
+  }
+
+  onConfirmClickAccount() {
+    //this.props.startChangeAccount(this.state.radio);
+    this.toggle();
+  }
+
+  onRadioSelect(val: string) {
+    this.setState({ radio: val });
+  }
+
   listNodes() {
     return nodeList.map((node: string) => {
       return (
         <FormGroup check>
           <Label check>
-            <Input type="radio" name="radio1" /> {node}
+            <Input
+              type="radio"
+              name="radio1"
+              onClick={() => this.onRadioSelect(node)}
+            />{' '}
+            {node}
           </Label>
         </FormGroup>
       );
     });
   }
 
-  componentDidMount() {
-    let nodeName: string = this.props.node.name;
-    getAccountListFromNode(nodeName).then(accountList => {
-      this.setState({ accounts: accountList });
+  listAccounts() {
+    return this.props.node.accounts.map((account: string) => {
+      return (
+        <FormGroup check>
+          <Label check>
+            <Input
+              type="radio"
+              name="radio1"
+              onClick={() => this.onRadioSelect(account)}
+            />{' '}
+            {account}
+          </Label>
+        </FormGroup>
+      );
     });
   }
 
@@ -79,19 +122,20 @@ export class ClickableHeaderCard extends React.Component<
     return false;
   }
 
+  componentDidMount() {
+    /*
+    let nodeName: string = this.props.node.name;
+    getAccountListFromNode(nodeName).then(accountList => {
+      this.setState({ accounts: accountList });
+    });
+    */
+  }
+
   showList() {
     if (this.isQuorum()) {
       return this.listNodes();
     } else {
-      return this.state.accounts.map((account: string) => {
-        return (
-          <FormGroup check>
-            <Label check>
-              <Input type="radio" name="radio1" /> {account}
-            </Label>
-          </FormGroup>
-        );
-      });
+      return this.listAccounts();
     }
   }
 
@@ -121,42 +165,51 @@ export class ClickableHeaderCard extends React.Component<
             </Row>
           </CardBody>
         </Card>
-        <Modal isOpen={this.state.modal} toggle={this.toggle}>
-          <ModalHeader
-            toggle={this.toggle}
-            className="text-uppercase text-muted mb-0"
-          >
-            {this.isQuorum() ? 'Choose Quorum Node' : 'Choose address'}
-          </ModalHeader>
-          <ModalBody>
-            <FormGroup tag="fieldset">
-              <legend>
-                {' '}
-                {this.isQuorum() ? 'Connect to:' : 'Login with:'}
-              </legend>
-              {this.showList()}
-            </FormGroup>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="success" onClick={this.toggle}>
-              Confirm
-            </Button>{' '}
-            <Button color="danger" onClick={this.toggle}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </Modal>
+          <Modal isOpen={this.state.modal} toggle={this.toggle}>
+            <ModalHeader
+              toggle={this.toggle}
+              className="text-uppercase text-muted mb-0"
+            >
+              {this.isQuorum() ? 'Choose Quorum Node' : 'Choose address'}
+            </ModalHeader>
+            <ModalBody>
+              <FormGroup tag="fieldset">
+                <legend>
+                  {' '}
+                  {this.isQuorum() ? 'Connect to:' : 'Login with:'}
+                </legend>
+                {this.showList()}
+              </FormGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color="success"
+                onClick={() => {
+                  this.isQuorum()
+                    ? this.onConfirmClickNode()
+                    : this.onConfirmClickAccount();
+                }}
+              >
+                Confirm
+              </Button>{' '}
+              <Button color="danger" onClick={this.toggle}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </Modal>
+
       </>
     );
   }
 }
+/*
 
 interface LinkStateProps {
   node: QuorumNode;
 }
 interface LinkDispatchProps {
-  startChangeNode?: (node: QuorumNode) => void;
-  startChangeAccount?: (account: string) => void;
+  startChangeNode: (node: QuorumNode) => void;
+  startChangeAccount: (account: string) => void;
 }
 
 const mapStateToProps = (
@@ -178,3 +231,4 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ClickableHeaderCard);
+*/

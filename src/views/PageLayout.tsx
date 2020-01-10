@@ -30,7 +30,7 @@ class Page extends React.Component {
 
   render() {
     return (
-      <>
+      <div className="main-content">
         <MySidebar
           {...this.props}
           routes={routes}
@@ -47,7 +47,7 @@ class Page extends React.Component {
             <MyFooter />
           </Container>
         </div>
-      </>
+      </div>
     );
   }
 }

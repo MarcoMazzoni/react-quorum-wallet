@@ -1,11 +1,12 @@
 import {
   AppActions,
   CHANGE_NODE,
-  CHANGE_ACCOUNT
+  CHANGE_ACCOUNT_LIST
 } from '../interfaces/Actions.interface';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { Dispatch } from 'redux';
 import { AppState } from '../store/configureStore';
+import { getAccountListFromNode } from '../contract/utils';
 
 export const changeNode = (node: QuorumNode): AppActions => {
   return {
@@ -14,21 +15,23 @@ export const changeNode = (node: QuorumNode): AppActions => {
   };
 };
 
-export const changeAccount = (account: string): AppActions => {
+const changeAccountList = (accounts: string[]): AppActions => {
   return {
-    type: CHANGE_ACCOUNT,
-    account
+    type: CHANGE_ACCOUNT_LIST,
+    accounts
   };
 };
 
-export const startChangeNode = (node: QuorumNode) => {
+export const startChangeNode = (nodeName: string) => {
   return (dispatch: Dispatch<AppActions>, getState: () => AppState) => {
-    dispatch(changeNode(node));
+    return getAccountListFromNode(nodeName).then(accountList => {
+      dispatch(changeNode({ name: nodeName, accounts: accountList }));
+    });
   };
 };
 
-export const startChangeAccount = (account: string) => {
+const startChangeAccountList = (accounts: string[]) => {
   return (dispatch: Dispatch<AppActions>, getState: () => AppState) => {
-    dispatch(changeAccount(account));
+    dispatch(changeAccountList(accounts));
   };
 };

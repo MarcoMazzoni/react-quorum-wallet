@@ -20,7 +20,11 @@ import {
   web3_node3
 } from '../contract/contractConfiguration';
 
-import { getWeb3ProviderFromNode } from '../contract/utils';
+import {
+  getWeb3ProviderFromNode,
+  getAllAccountsFromAllNodes,
+  nodeList
+} from '../contract/utils';
 
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
 import { Dispatch, bindActionCreators } from 'redux';
@@ -28,13 +32,14 @@ import { AppActions } from '../interfaces/Actions.interface';
 import { ThunkDispatch } from 'redux-thunk';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { AppState } from '../store/configureStore';
-import { changeNode, changeAccount } from '../actions/nodes';
+import { startChangeNode } from '../actions/nodes';
 import { connect } from 'react-redux';
+import { TransactionCard } from '../components/TransactionCard';
 
 interface HomeState {
   res: string;
   rec: TransactionReceiptCustom;
-  accounts: string[];
+  allNodesAccounts: string[];
   methodName: string;
 }
 
@@ -43,7 +48,6 @@ interface HomeProps {}
 type Props = HomeProps & LinkStateProps & LinkDispatchProps;
 
 export class Home extends React.Component<Props, HomeState> {
-  insertValueRef: React.RefObject<HTMLInputElement>;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -59,44 +63,50 @@ export class Home extends React.Component<Props, HomeState> {
         cumulativeGasUsed: 0,
         gasUsed: 0
       },
-      accounts: ['', ''],
+      allNodesAccounts: ['', ''],
       methodName: ''
     };
-    this.insertValueRef = React.createRef();
+
     this.getBalance = this.getBalance.bind(this);
     this.getAllAccounts = this.getAllAccounts.bind(this);
     //this.setMethod = this.setMethod.bind(this);
   }
 
   async getAccountZero() {
-    let accounts: string[] = await web3_node1.eth.getAccounts();
+    let accounts: string[] = this.props.node.accounts;
     let accountZero: string = accounts[0];
     return accountZero;
   }
 
   async getBalance() {
-    let accountZero: string = await this.getAccountZero();
+    let acc: string = this.props.node.accounts[0];
     myContract.methods
-      .balanceOf(accountZero)
+      .balanceOf(acc)
       .call()
       .then(response => this.setState({ res: response, methodName: 'GET' }));
     //this.renderAnswer();
   }
 
   async getAllAccounts() {
-    let accountsNode1: string[] = await web3_node1.eth.getAccounts();
-    let accountsNode2: string[] = await web3_node2.eth.getAccounts();
-    let accountsNode3: string[] = await web3_node3.eth.getAccounts();
-    let newAccounts: string[] = [
-      ...accountsNode1,
-      ...accountsNode2,
-      ...accountsNode3
-    ];
-    this.setState({ accounts: newAccounts, methodName: 'SET' });
+    let newAccounts: string[] = await getAllAccountsFromAllNodes();
+    this.setState({
+      allNodesAccounts: newAccounts
+    });
+  }
+
+  printAllAccounts() {
+    let accountList: string[] = this.state.allNodesAccounts;
+    return accountList.map((value, index) => {
+      return (
+        <h3 className="text-white mb-0">
+          {index.toString()}: {value.toString()}
+        </h3>
+      );
+    });
   }
 
   printAccountList() {
-    let accountList: string[] = this.state.accounts;
+    let accountList: string[] = this.props.node.accounts;
     return accountList.map((value, index) => {
       return (
         <h3 className="text-white mb-0">
@@ -139,11 +149,12 @@ export class Home extends React.Component<Props, HomeState> {
   }
   */
 
-  async changeNode(node: QuorumNode) {
-    this.props.startChangeNode(node);
-    let web3Provider = getWeb3ProviderFromNode(node.name);
-    let accountList: string[] = await web3Provider.eth.getAccounts();
-    this.props.startChangeAccount(accountList[0]);
+  changeNode(nodeName: string) {
+    this.props.startChangeNode(nodeName);
+    this.setState({ methodName: 'SET' });
+    //let web3Provider = getWeb3ProviderFromNode(node.name);
+    //let accountList: string[] = await web3Provider.eth.getAccounts();
+    //this.props.startChangeAccount(accountList[0]);
   }
 
   renderReceipt(receipt: TransactionReceiptCustom) {
@@ -159,20 +170,33 @@ export class Home extends React.Component<Props, HomeState> {
   renderAnswer() {
     if (this.state.methodName === 'GET')
       return <h3 className="text-white mb-0"> {this.state.res} </h3>;
-    else if (this.state.methodName === 'SET')
+    else if (this.state.methodName === 'GET_ACCOUNTS')
       //return <ul>{this.renderReceipt(this.state.rec)}</ul>;
+      return <ul>{this.printAllAccounts()}</ul>;
+    else if (this.state.methodName === 'SET')
       return <ul>{this.printAccountList()}</ul>;
     else return <p> Click a Method Button please </p>;
+  }
+
+  componentDidMount() {
+    this.props.startChangeNode(nodeList[0]);
+    this.getAllAccounts();
   }
 
   render() {
     return (
       <>
-        <Header node={this.props.node} />
+        <Header {...this.props} />
         {/* Page content */}
         <Container className="mt--7" fluid>
           <Row>
-            <Col className="mb-5 mb-xl-0" xl="8">
+            <Col xl="8">
+              <TransactionCard
+                {...this.props}
+                allNodesAccounts={this.state.allNodesAccounts}
+              />
+            </Col>
+            <Col className="mb-5 mb-xl-0" xl="4">
               <Card className="bg-gradient-default shadow">
                 <CardHeader className="bg-transparent">
                   <Row className="align-items-center">
@@ -190,71 +214,6 @@ export class Home extends React.Component<Props, HomeState> {
                 </CardBody>
               </Card>
             </Col>
-            <Col xl="4">
-              <Card className="shadow">
-                <CardHeader className="bg-transparent">
-                  <Row className="align-items-center">
-                    <div className="col">
-                      <h6 className="text-uppercase text-muted ls-1 mb-1">
-                        Methods
-                      </h6>
-                      <h2 className="mb-0">Choose one</h2>
-                    </div>
-                  </Row>
-                </CardHeader>
-                <CardBody>
-                  {/* Chart */}
-                  <div>
-                    <Button
-                      color="primary"
-                      size="lg"
-                      onClick={this.getBalance}
-                      block
-                    >
-                      GET
-                    </Button>{' '}
-                  </div>
-                  <div>
-                    <Input
-                      type="text"
-                      placeholder="Insert value"
-                      innerRef={this.insertValueRef}
-                    />
-                    <Button
-                      color="info"
-                      size="lg"
-                      onClick={this.getAllAccounts}
-                      block
-                    >
-                      Get All Accounts
-                    </Button>{' '}
-                  </div>
-                  <div>
-                    <Button
-                      color="primary"
-                      size="lg"
-                      onClick={() =>
-                        this.changeNode({ name: 'Node3', account: '0x0' })
-                      }
-                      block
-                    >
-                      Change Node
-                    </Button>{' '}
-                  </div>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Card className="bg-gradient-default shadow">
-              <CardBody>
-                {/* Chart */}
-                <h3 className="text-white mb-0">
-                  You are logged in as
-                  <h2 className="text-white mb-0">{this.props.node.name}</h2>
-                </h3>
-              </CardBody>
-            </Card>
           </Row>
         </Container>
       </>
@@ -262,12 +221,12 @@ export class Home extends React.Component<Props, HomeState> {
   }
 }
 
-interface LinkStateProps {
+export interface LinkStateProps {
   node: QuorumNode;
 }
-interface LinkDispatchProps {
-  startChangeNode: (node: QuorumNode) => void;
-  startChangeAccount: (account: string) => void;
+export interface LinkDispatchProps {
+  startChangeNode: (nodeName: string) => void;
+  //startChangeAccount: (account: string) => void;
 }
 
 const mapStateToProps = (
@@ -281,8 +240,8 @@ const mapDispatchToProps = (
   dispatch: ThunkDispatch<any, any, AppActions>,
   ownProps: HomeProps
 ): LinkDispatchProps => ({
-  startChangeNode: bindActionCreators(changeNode, dispatch),
-  startChangeAccount: bindActionCreators(changeAccount, dispatch)
+  startChangeNode: bindActionCreators(startChangeNode, dispatch)
+  //startChangeAccount: bindActionCreators(changeAccount, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

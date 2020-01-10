@@ -19,8 +19,19 @@ export const getWeb3ProviderFromNode = (name: string): any => {
   }
 };
 
-export const getAccountListFromNode = async (name: string): Promise<string[]> => {
+export const getAccountListFromNode = async (
+  name: string
+): Promise<string[]> => {
   let web3Provider = getWeb3ProviderFromNode(name);
   let accountList: string[] = await web3Provider.eth.getAccounts();
   return accountList;
+};
+
+export const getAllAccountsFromAllNodes = async (): Promise<string[]> => {
+  let allAccounts: string[] = [];
+  for (let i = 0, length = nodeList.length; i < length; ++i) {
+    let accountList: string[] = await getAccountListFromNode(nodeList[i]);
+    allAccounts = [...allAccounts, ...accountList];
+  }
+  return allAccounts;
 };
