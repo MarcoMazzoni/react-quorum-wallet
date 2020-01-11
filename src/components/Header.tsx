@@ -5,17 +5,38 @@ import { Card, CardBody, CardTitle, Container, Row, Col } from 'reactstrap';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { ClickableHeaderCard } from './ClickableHeaderCard';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
+import { myContract } from '../contract/contractConfiguration';
 
 interface HeaderProps {}
+interface HeaderState {
+  balance: string;
+}
 
 type Props = HeaderProps & LinkStateProps & LinkDispatchProps;
 
-class Header extends React.Component<Props> {
+class Header extends React.Component<Props, HeaderState> {
   constructor(props: Props) {
     super(props);
+    this.state = {
+      balance: ''
+    };
+    this.getMyBalance = this.getMyBalance.bind(this);
   }
 
+  getMyBalance() {
+    let acc: string = this.props.node.accounts[0];
+    if (acc != '0x0') {
+      myContract.methods
+        .balanceOf(acc)
+        .call()
+        .then(response => this.setState({ balance: response }));
+    }
+  }
+
+  componentDidMount() {}
+
   render() {
+    this.getMyBalance();
     return (
       <>
         <div className="header bg-gradient-info pb-8 pt-5 pt-md-8">
@@ -32,10 +53,10 @@ class Header extends React.Component<Props> {
                             tag="h5"
                             className="text-uppercase text-muted mb-0"
                           >
-                            Balance
+                            Balance (SCD)
                           </CardTitle>
                           <span className="h2 font-weight-bold mb-0">
-                            2,356
+                            {this.state.balance}
                           </span>
                         </div>
                         <Col className="col-auto">

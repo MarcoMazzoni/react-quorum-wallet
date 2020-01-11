@@ -122,14 +122,7 @@ export class ClickableHeaderCard extends React.Component<
     return false;
   }
 
-  componentDidMount() {
-    /*
-    let nodeName: string = this.props.node.name;
-    getAccountListFromNode(nodeName).then(accountList => {
-      this.setState({ accounts: accountList });
-    });
-    */
-  }
+  componentDidMount() {}
 
   showList() {
     if (this.isQuorum()) {
@@ -165,70 +158,39 @@ export class ClickableHeaderCard extends React.Component<
             </Row>
           </CardBody>
         </Card>
-          <Modal isOpen={this.state.modal} toggle={this.toggle}>
-            <ModalHeader
-              toggle={this.toggle}
-              className="text-uppercase text-muted mb-0"
+        <Modal isOpen={this.state.modal} toggle={this.toggle}>
+          <ModalHeader
+            toggle={this.toggle}
+            className="text-uppercase text-muted mb-0"
+          >
+            {this.isQuorum() ? 'Choose Quorum Node' : 'Choose address'}
+          </ModalHeader>
+          <ModalBody>
+            <FormGroup tag="fieldset">
+              <legend>
+                {' '}
+                {this.isQuorum() ? 'Connect to:' : 'Login with:'}
+              </legend>
+              {this.showList()}
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              color="success"
+              onClick={() => {
+                this.isQuorum()
+                  ? this.onConfirmClickNode()
+                  : this.onConfirmClickAccount();
+              }}
             >
-              {this.isQuorum() ? 'Choose Quorum Node' : 'Choose address'}
-            </ModalHeader>
-            <ModalBody>
-              <FormGroup tag="fieldset">
-                <legend>
-                  {' '}
-                  {this.isQuorum() ? 'Connect to:' : 'Login with:'}
-                </legend>
-                {this.showList()}
-              </FormGroup>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                color="success"
-                onClick={() => {
-                  this.isQuorum()
-                    ? this.onConfirmClickNode()
-                    : this.onConfirmClickAccount();
-                }}
-              >
-                Confirm
-              </Button>{' '}
-              <Button color="danger" onClick={this.toggle}>
-                Cancel
-              </Button>
-            </ModalFooter>
-          </Modal>
-
+              Confirm
+            </Button>{' '}
+            <Button color="danger" onClick={this.toggle}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
       </>
     );
   }
 }
-/*
-
-interface LinkStateProps {
-  node: QuorumNode;
-}
-interface LinkDispatchProps {
-  startChangeNode: (node: QuorumNode) => void;
-  startChangeAccount: (account: string) => void;
-}
-
-const mapStateToProps = (
-  state: AppState,
-  ownProps: ClickableCardProps
-): LinkStateProps => ({
-  node: state.node
-});
-
-const mapDispatchToProps = (
-  dispatch: ThunkDispatch<any, any, AppActions>,
-  ownProps: ClickableCardProps
-): LinkDispatchProps => ({
-  startChangeNode: bindActionCreators(changeNode, dispatch),
-  startChangeAccount: bindActionCreators(changeAccount, dispatch)
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ClickableHeaderCard);
-*/

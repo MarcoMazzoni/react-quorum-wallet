@@ -14,10 +14,7 @@ import {
 import Header from '../components/Header';
 
 import {
-  myContract,
-  web3_node1,
-  web3_node2,
-  web3_node3
+  myContract
 } from '../contract/contractConfiguration';
 
 import {
