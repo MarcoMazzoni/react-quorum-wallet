@@ -127,6 +127,7 @@ export class Home extends React.Component<Props, HomeState> {
   }
 
   componentDidMount() {
+    document.body.classList.add('bg-default');
     this.props.startChangeNode(nodeList[0]);
     this.getAllAccounts();
   }
@@ -137,36 +138,43 @@ export class Home extends React.Component<Props, HomeState> {
         <Header {...this.props} />
         {/* Page content */}
         <Container className="mt--7" fluid>
-          <Row>
+          <Row className="justify-content-center">
             <Col xl="7">
               <TransactionCard
                 {...this.props}
                 allNodesAccounts={this.state.allNodesAccounts}
               />
             </Col>
-            <Col className="mb-5 mb-xl-0" xl="5">
-              <Card className="bg-gradient-default shadow">
-                <CardHeader className="bg-transparent">
-                  <Row className="align-items-center">
-                    <div className="col">
-                      <h6 className="text-uppercase text-light ls-1 mb-1">
-                        Overview
-                      </h6>
-                      <h2 className="text-white mb-0">Transaction Output</h2>
-                    </div>
-                  </Row>
-                </CardHeader>
-                <CardBody>
-                  {/* Chart */}
-                  {this.renderAnswer()}
-                </CardBody>
-              </Card>
-            </Col>
           </Row>
         </Container>
       </>
     );
   }
+
+  /*
+  renderTransactionOutput() {
+    return (
+      <Col className="mb-5 mb-xl-0" xl="5">
+        <Card className="bg-gradient-default shadow">
+          <CardHeader className="bg-transparent">
+            <Row className="align-items-center">
+              <div className="col">
+                <h6 className="text-uppercase text-light ls-1 mb-1">
+                  Overview
+                </h6>
+                <h2 className="text-white mb-0">Transaction Output</h2>
+              </div>
+            </Row>
+          </CardHeader>
+          <CardBody>
+            
+            {this.renderAnswer()}
+          </CardBody>
+        </Card>
+      </Col>
+    );
+  }
+  */
 }
 
 export interface LinkStateProps {

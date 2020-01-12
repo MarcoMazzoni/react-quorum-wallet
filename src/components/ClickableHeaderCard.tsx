@@ -70,7 +70,7 @@ export class ClickableHeaderCard extends React.Component<
 
   onConfirmClickAccount() {
     this.props.startChangeAccount(this.state.radio);
-    console.log(this.state.radio);
+
     this.toggle();
   }
 

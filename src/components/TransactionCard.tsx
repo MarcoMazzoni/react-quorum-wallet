@@ -14,7 +14,7 @@ import {
 } from 'reactstrap';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
-import { getContractByNode } from '../contract/utils';
+import { getContractByNode, nodeList } from '../contract/utils';
 
 interface TransactionCardProps {
   allNodesAccounts: string[];
@@ -25,6 +25,7 @@ interface TransactionCardState {
   amountValueCorrect: boolean;
   recepient: string;
   receipt: TransactionReceiptCustom;
+  private: boolean;
 }
 
 type Props = TransactionCardProps & LinkStateProps & LinkDispatchProps;
@@ -49,12 +50,15 @@ export class TransactionCard extends React.Component<
         to: '',
         cumulativeGasUsed: 0,
         gasUsed: 0
-      }
+      },
+      private: false
     };
 
     this.validateAmount = this.validateAmount.bind(this);
     this.handleSelection = this.handleSelection.bind(this);
     this.sendMoney = this.sendMoney.bind(this);
+    this.showPrivateForList = this.showPrivateForList.bind(this);
+    this.togglePrivateList = this.togglePrivateList.bind(this);
   }
 
   sendMoney() {
@@ -63,7 +67,7 @@ export class TransactionCard extends React.Component<
 
     getContractByNode(this.props.node.name)
       .methods.transfer(recepient, amount)
-      .send({ from: this.props.node.accounts[0] })
+      .send({ from: this.props.node.accountSelected })
       .then((receipt: TransactionReceiptCustom) => {
         this.setState(prevState => ({
           receipt: {
@@ -101,6 +105,29 @@ export class TransactionCard extends React.Component<
   handleSelection(event: React.FormEvent) {
     let value = (event.target as HTMLInputElement).value.slice(8); //Because we have to remove (NodeX)
     this.setState({ recepient: value });
+  }
+
+  togglePrivateList() {
+    let newPrivateState = !this.state.private;
+    this.setState({ private: newPrivateState });
+  }
+
+  showPrivateForList() {
+    if (this.state.private) {
+      return Object.entries(nodeList).map(nodeName => {
+        let node: string = nodeName[1];
+        return (
+          <CustomInput
+            type="checkbox"
+            label={node}
+            id={node}
+            name="customSwitch"
+            color="green"
+            inline
+          ></CustomInput>
+        );
+      });
+    }
   }
 
   render() {
@@ -149,6 +176,32 @@ export class TransactionCard extends React.Component<
                     <option value="">Select Address</option>
                     {this.listAccounts()}
                   </CustomInput>
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col lg="11">
+                <FormGroup>
+                  <CustomInput
+                    type="checkbox"
+                    label="Make this transaction Private"
+                    id="exampleCustomSwitch"
+                    name="customSwitch"
+                    onChange={this.togglePrivateList}
+                  ></CustomInput>
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col lg="11">
+                <FormGroup>
+                  <label
+                    className="form-control-label"
+                    htmlFor="input-first-name"
+                  >
+                    Private for:
+                  </label>
+                  {this.showPrivateForList()}
                 </FormGroup>
               </Col>
             </Row>
