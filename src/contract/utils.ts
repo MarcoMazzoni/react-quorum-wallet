@@ -48,7 +48,21 @@ export const getAllAccountsFromAllNodes = async (): Promise<string[]> => {
   let allAccounts: string[] = [];
   for (let i = 0, length = nodeList.length; i < length; ++i) {
     let accountList: string[] = await getAccountListFromNode(nodeList[i]);
+    for (let j = 0, len = accountList.length; j < len; ++j) {
+      let node_account: string = '(' + nodeList[i] + ') ' + accountList[j];
+      accountList[j] = node_account;
+    }
     allAccounts = [...allAccounts, ...accountList];
   }
   return allAccounts;
 };
+
+// non farlo mai
+/*
+export const populateNodesWithAccounts = async () => {
+  for (let i = 0, length = nodeList.length; i < length; ++i) {
+    for (let j = 0; j < 2; ++j)
+      await web3Providers[i].eth.personal.newAccount('');
+  }
+};
+*/

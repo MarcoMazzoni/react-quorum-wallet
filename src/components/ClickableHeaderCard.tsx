@@ -65,17 +65,12 @@ export class ClickableHeaderCard extends React.Component<
   onConfirmClickNode() {
     let nodeName: string = this.state.radio;
     this.props.startChangeNode(nodeName);
-    /*
-    getAccountListFromNode(nodeName).then(accountList => {
-      this.setState({ accounts: accountList });
-      //this.props.startChangeAccount(accountList[0]);
-    });
-    */
     this.toggle();
   }
 
   onConfirmClickAccount() {
-    //this.props.startChangeAccount(this.state.radio);
+    this.props.startChangeAccount(this.state.radio);
+    console.log(this.state.radio);
     this.toggle();
   }
 

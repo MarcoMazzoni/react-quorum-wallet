@@ -99,14 +99,14 @@ export class TransactionCard extends React.Component<
   }
 
   handleSelection(event: React.FormEvent) {
-    let value = (event.target as HTMLInputElement).value;
+    let value = (event.target as HTMLInputElement).value.slice(8); //Because we have to remove (NodeX)
     this.setState({ recepient: value });
   }
 
   render() {
     return (
-      <Card className="shadow">
-        <CardHeader className="bg-transparent">
+      <Card className="bg-secondary shadow border-0">
+        <CardHeader className="bg-transparent pb-5">
           <Row className="align-items-center">
             <div className="col">
               <h6 className="text-uppercase text-muted ls-1 mb-1">Welcome!</h6>
@@ -114,7 +114,7 @@ export class TransactionCard extends React.Component<
             </div>
           </Row>
         </CardHeader>
-        <CardBody>
+        <CardBody className="px-lg-5 py-lg-5">
           <div className="pl-lg-4">
             <Row>
               <Col lg="11">
@@ -125,7 +125,7 @@ export class TransactionCard extends React.Component<
                     placeholder="Amount to send"
                     pattern="^-?[0-9]\d*\.?\d*$"
                     value={this.state.amountValue}
-                    onInput={this.validateAmount}
+                    onChange={this.validateAmount}
                     valid={this.state.amountValueCorrect}
                   />
                 </FormGroup>
@@ -155,12 +155,17 @@ export class TransactionCard extends React.Component<
           </div>
         </CardBody>
 
-        <CardFooter>
-          <Row>
-            <Button color="info" size="lg" onClick={this.sendMoney}>
+        <CardFooter className="bg-transparent pb-5">
+          <div className="text-center">
+            <Button
+              className="mt-4"
+              color="primary"
+              type="button"
+              onClick={this.sendMoney}
+            >
               Send Money
-            </Button>{' '}
-          </Row>
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     );

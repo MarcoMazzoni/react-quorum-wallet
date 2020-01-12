@@ -1,20 +1,10 @@
 import React from 'react';
 // reactstrap components
-import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  Container,
-  Row,
-  Col,
-  Input
-} from 'reactstrap';
+import { Card, CardHeader, CardBody, Container, Row, Col } from 'reactstrap';
 
 import Header from '../components/Header';
 
 import {
-  getWeb3ProviderFromNode,
   getAllAccountsFromAllNodes,
   nodeList,
   getContractByNode
@@ -26,7 +16,7 @@ import { AppActions } from '../interfaces/Actions.interface';
 import { ThunkDispatch } from 'redux-thunk';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { AppState } from '../store/configureStore';
-import { startChangeNode } from '../actions/nodes';
+import { startChangeNode, startChangeAccount } from '../actions/nodes';
 import { connect } from 'react-redux';
 import { TransactionCard } from '../components/TransactionCard';
 
@@ -112,45 +102,8 @@ export class Home extends React.Component<Props, HomeState> {
     });
   }
 
-  /*
-  async setMethod() {
-    let accounts: string[] = await web3.eth.getAccounts();
-    let accountZero: string = accounts[0];
-
-    let inputValue: string = '';
-    if (this.insertValueRef.current != null)
-      inputValue = this.insertValueRef.current.value;
-
-    myContract.methods
-      .set(inputValue)
-      .send({ from: accountZero })
-      .then((receipt: TransactionReceiptCustom) => {
-        this.setState(prevState => ({
-          rec: {
-            ...prevState.rec,
-            status: receipt.status,
-            transactionHash: receipt.transactionHash,
-            transactionIndex: receipt.transactionIndex,
-            blockHash: receipt.blockHash,
-            blockNumber: receipt.blockNumber,
-            from: receipt.from,
-            to: receipt.to,
-            cumulativeGasUsed: receipt.cumulativeGasUsed,
-            gasUsed: receipt.gasUsed
-          },
-          methodName: 'SET'
-        }));
-      });
-    this.renderAnswer();
-  }
-  */
-
   changeNode(nodeName: string) {
     this.props.startChangeNode(nodeName);
-    this.setState({ methodName: 'SET' });
-    //let web3Provider = getWeb3ProviderFromNode(node.name);
-    //let accountList: string[] = await web3Provider.eth.getAccounts();
-    //this.props.startChangeAccount(accountList[0]);
   }
 
   renderReceipt(receipt: TransactionReceiptCustom) {
@@ -167,7 +120,6 @@ export class Home extends React.Component<Props, HomeState> {
     if (this.state.methodName === 'GET')
       return <h3 className="text-white mb-0"> {this.state.res} </h3>;
     else if (this.state.methodName === 'GET_ACCOUNTS')
-      //return <ul>{this.renderReceipt(this.state.rec)}</ul>;
       return <ul>{this.printAllAccounts()}</ul>;
     else if (this.state.methodName === 'SET')
       return <ul>{this.printAccountList()}</ul>;
@@ -186,13 +138,13 @@ export class Home extends React.Component<Props, HomeState> {
         {/* Page content */}
         <Container className="mt--7" fluid>
           <Row>
-            <Col xl="8">
+            <Col xl="7">
               <TransactionCard
                 {...this.props}
                 allNodesAccounts={this.state.allNodesAccounts}
               />
             </Col>
-            <Col className="mb-5 mb-xl-0" xl="4">
+            <Col className="mb-5 mb-xl-0" xl="5">
               <Card className="bg-gradient-default shadow">
                 <CardHeader className="bg-transparent">
                   <Row className="align-items-center">
@@ -222,7 +174,7 @@ export interface LinkStateProps {
 }
 export interface LinkDispatchProps {
   startChangeNode: (nodeName: string) => void;
-  //startChangeAccount: (account: string) => void;
+  startChangeAccount: (account: string) => void;
 }
 
 const mapStateToProps = (
@@ -236,8 +188,8 @@ const mapDispatchToProps = (
   dispatch: ThunkDispatch<any, any, AppActions>,
   ownProps: HomeProps
 ): LinkDispatchProps => ({
-  startChangeNode: bindActionCreators(startChangeNode, dispatch)
-  //startChangeAccount: bindActionCreators(changeAccount, dispatch)
+  startChangeNode: bindActionCreators(startChangeNode, dispatch),
+  startChangeAccount: bindActionCreators(startChangeAccount, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

@@ -37,7 +37,7 @@ export const web3Providers = [
 ];
 
 // Deployment address of the Smart Contract
-const address: string = '0x5F1ce7b26d69387A230524eA2A37afEe059c1270';
+const address: string = '0x980b7d17Af1c4F5BbB626E2332AbF65120e58f1E';
 
 export const contractOfNode: MyToken[] = [
   new web3_node1.eth.Contract(myTokenAbi, address),

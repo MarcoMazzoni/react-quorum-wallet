@@ -25,7 +25,7 @@ class Header extends React.Component<Props, HeaderState> {
   }
 
   getMyBalance() {
-    let acc: string = this.props.node.accounts[0];
+    let acc: string = this.props.node.accountSelected;
     if (acc != '0x0') {
       getContractByNode(this.props.node.name)
         .methods.balanceOf(acc)
@@ -101,16 +101,18 @@ class Header extends React.Component<Props, HeaderState> {
                     iconColor="icon icon-shape bg-yellow text-white rounded-circle shadow"
                     iconType="fas fa-cloud"
                     startChangeNode={this.props.startChangeNode}
+                    startChangeAccount={this.props.startChangeAccount}
                   />
                 </Col>
                 <Col lg="6" xl="6">
                   <ClickableHeaderCard
                     cardTitle="Account Address"
-                    cardContent={this.props.node.accounts[0]}
+                    cardContent={this.props.node.accountSelected}
                     node={this.props.node}
                     iconColor="icon icon-shape bg-green text-white rounded-circle shadow"
                     iconType="fas fa-user"
                     startChangeNode={this.props.startChangeNode}
+                    startChangeAccount={this.props.startChangeAccount}
                   />
                 </Col>
               </Row>
