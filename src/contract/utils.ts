@@ -1,4 +1,4 @@
-import { web3Providers } from './contractConfiguration';
+import { web3Providers, contractOfNode } from './contractConfiguration';
 
 export const nodeList: string[] = ['Node1', 'Node2', 'Node3', 'Node4', 'Node5'];
 
@@ -14,6 +14,23 @@ export const getWeb3ProviderFromNode = (name: string): any => {
       return web3Providers[3];
     case 'Node5':
       return web3Providers[4];
+    default:
+      return;
+  }
+};
+
+export const getContractByNode = (name: string): any => {
+  switch (name) {
+    case 'Node1':
+      return contractOfNode[0];
+    case 'Node2':
+      return contractOfNode[1];
+    case 'Node3':
+      return contractOfNode[2];
+    case 'Node4':
+      return contractOfNode[3];
+    case 'Node5':
+      return contractOfNode[4];
     default:
       return;
   }

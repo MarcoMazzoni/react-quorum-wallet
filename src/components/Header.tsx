@@ -5,7 +5,8 @@ import { Card, CardBody, CardTitle, Container, Row, Col } from 'reactstrap';
 import { QuorumNode } from '../interfaces/Node.interface';
 import { ClickableHeaderCard } from './ClickableHeaderCard';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
-import { myContract } from '../contract/contractConfiguration';
+import { contractOfNode } from '../contract/contractConfiguration';
+import { getContractByNode } from '../contract/utils';
 
 interface HeaderProps {}
 interface HeaderState {
@@ -26,10 +27,10 @@ class Header extends React.Component<Props, HeaderState> {
   getMyBalance() {
     let acc: string = this.props.node.accounts[0];
     if (acc != '0x0') {
-      myContract.methods
-        .balanceOf(acc)
+      getContractByNode(this.props.node.name)
+        .methods.balanceOf(acc)
         .call()
-        .then(response => this.setState({ balance: response }));
+        .then((response: string) => this.setState({ balance: response }));
     }
   }
 

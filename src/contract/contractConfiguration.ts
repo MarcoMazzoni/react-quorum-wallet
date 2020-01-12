@@ -39,8 +39,10 @@ export const web3Providers = [
 // Deployment address of the Smart Contract
 const address: string = '0x5F1ce7b26d69387A230524eA2A37afEe059c1270';
 
-// The contract has been deployed by Node1 based on truffle configurations
-export const myContract: MyToken = new web3_node1.eth.Contract(
-  myTokenAbi,
-  address
-);
+export const contractOfNode: MyToken[] = [
+  new web3_node1.eth.Contract(myTokenAbi, address),
+  new web3_node2.eth.Contract(myTokenAbi, address),
+  new web3_node3.eth.Contract(myTokenAbi, address),
+  new web3_node4.eth.Contract(myTokenAbi, address),
+  new web3_node5.eth.Contract(myTokenAbi, address)
+];

@@ -12,9 +12,9 @@ import {
   Col,
   CardFooter
 } from 'reactstrap';
-import { myContract } from '../contract/contractConfiguration';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
+import { getContractByNode } from '../contract/utils';
 
 interface TransactionCardProps {
   allNodesAccounts: string[];
@@ -60,8 +60,9 @@ export class TransactionCard extends React.Component<
   sendMoney() {
     let recepient: string = this.state.recepient;
     let amount: string = this.state.amountValue;
-    myContract.methods
-      .transfer(recepient, amount)
+
+    getContractByNode(this.props.node.name)
+      .methods.transfer(recepient, amount)
       .send({ from: this.props.node.accounts[0] })
       .then((receipt: TransactionReceiptCustom) => {
         this.setState(prevState => ({
@@ -114,32 +115,44 @@ export class TransactionCard extends React.Component<
           </Row>
         </CardHeader>
         <CardBody>
-          <div>
+          <div className="pl-lg-4">
             <Row>
-              <Label>Amount</Label>
-              <Input
-                type="text"
-                placeholder="Amount to send"
-                pattern="^-?[0-9]\d*\.?\d*$"
-                value={this.state.amountValue}
-                onInput={this.validateAmount}
-                valid={this.state.amountValueCorrect}
-              />
+              <Col lg="11">
+                <FormGroup>
+                  <label className="form-control-label">Amount</label>
+                  <Input
+                    type="text"
+                    placeholder="Amount to send"
+                    pattern="^-?[0-9]\d*\.?\d*$"
+                    value={this.state.amountValue}
+                    onInput={this.validateAmount}
+                    valid={this.state.amountValueCorrect}
+                  />
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col lg="11">
+                <FormGroup>
+                  <label
+                    className="form-control-label"
+                    htmlFor="input-first-name"
+                  >
+                    Recepient
+                  </label>
+                  <CustomInput
+                    type="select"
+                    id="recepientSelector"
+                    name="customSelect"
+                    onChange={this.handleSelection}
+                  >
+                    <option value="">Select Address</option>
+                    {this.listAccounts()}
+                  </CustomInput>
+                </FormGroup>
+              </Col>
             </Row>
           </div>
-
-          <FormGroup>
-            <Label for="recepientSelector">Recepient:</Label>
-            <CustomInput
-              type="select"
-              id="recepientSelector"
-              name="customSelect"
-              onChange={this.handleSelection}
-            >
-              <option value="">Select Address</option>
-              {this.listAccounts()}
-            </CustomInput>
-          </FormGroup>
         </CardBody>
 
         <CardFooter>

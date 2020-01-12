@@ -14,13 +14,10 @@ import {
 import Header from '../components/Header';
 
 import {
-  myContract
-} from '../contract/contractConfiguration';
-
-import {
   getWeb3ProviderFromNode,
   getAllAccountsFromAllNodes,
-  nodeList
+  nodeList,
+  getContractByNode
 } from '../contract/utils';
 
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
@@ -77,10 +74,12 @@ export class Home extends React.Component<Props, HomeState> {
 
   async getBalance() {
     let acc: string = this.props.node.accounts[0];
-    myContract.methods
-      .balanceOf(acc)
+    getContractByNode(this.props.node.name)
+      .methods.balanceOf(acc)
       .call()
-      .then(response => this.setState({ res: response, methodName: 'GET' }));
+      .then((response: string) =>
+        this.setState({ res: response, methodName: 'GET' })
+      );
     //this.renderAnswer();
   }
 
