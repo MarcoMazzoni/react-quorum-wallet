@@ -26,6 +26,7 @@ interface TransactionCardState {
   recepient: string;
   receipt: TransactionReceiptCustom;
   private: boolean;
+  selectedCheckboxes: Set<string>;
 }
 
 type Props = TransactionCardProps & LinkStateProps & LinkDispatchProps;
@@ -51,7 +52,8 @@ export class TransactionCard extends React.Component<
         cumulativeGasUsed: 0,
         gasUsed: 0
       },
-      private: false
+      private: false,
+      selectedCheckboxes: new Set<string>()
     };
 
     this.validateAmount = this.validateAmount.bind(this);
@@ -59,6 +61,8 @@ export class TransactionCard extends React.Component<
     this.sendMoney = this.sendMoney.bind(this);
     this.showPrivateForList = this.showPrivateForList.bind(this);
     this.togglePrivateList = this.togglePrivateList.bind(this);
+    this.addToSelectedCheckboxList = this.addToSelectedCheckboxList.bind(this);
+    this.handleSubmitPrivateNodes = this.handleSubmitPrivateNodes.bind(this);
   }
 
   sendMoney() {
@@ -86,6 +90,8 @@ export class TransactionCard extends React.Component<
       });
   }
 
+  sendPrivateMoney() {}
+
   listAccounts() {
     let allAccounts: string[] = this.props.allNodesAccounts;
     return Object.entries(allAccounts).map(account => {
@@ -112,6 +118,23 @@ export class TransactionCard extends React.Component<
     this.setState({ private: newPrivateState });
   }
 
+  handleSubmitPrivateNodes() {
+    this.state.selectedCheckboxes.forEach(checkbox => {
+      console.log(checkbox, 'is selected.');
+    });
+  }
+
+  addToSelectedCheckboxList(event: React.FormEvent) {
+    let label = (event.target as HTMLInputElement).value;
+    let newSelected: Set<string> = this.state.selectedCheckboxes;
+    if (this.state.selectedCheckboxes.has(label)) {
+      newSelected.delete(label);
+    } else {
+      newSelected.add(label);
+    }
+    this.setState({ selectedCheckboxes: newSelected });
+  }
+
   showPrivateForList() {
     if (this.state.private) {
       return Object.entries(nodeList).map(nodeName => {
@@ -120,9 +143,9 @@ export class TransactionCard extends React.Component<
           <CustomInput
             type="checkbox"
             label={node}
+            value={node}
             id={node}
-            name="customSwitch"
-            color="green"
+            onChange={this.addToSelectedCheckboxList}
             inline
           ></CustomInput>
         );
@@ -192,6 +215,7 @@ export class TransactionCard extends React.Component<
                 </FormGroup>
               </Col>
             </Row>
+
             <Row>
               <Col lg="11">
                 <FormGroup>
@@ -199,9 +223,27 @@ export class TransactionCard extends React.Component<
                     className="form-control-label"
                     htmlFor="input-first-name"
                   >
-                    Private for:
+                    {this.state.private ? 'Private for:' : ''}
                   </label>
-                  {this.showPrivateForList()}
+                  <Row className="align-items-center">
+                    <Col lg="8">{this.showPrivateForList()}</Col>
+
+                    <Col lg="3">
+                      {this.state.private ? (
+                        <Button
+                          className="float-center"
+                          color="default"
+                          type="button"
+                          onClick={this.handleSubmitPrivateNodes}
+                          size="sm"
+                        >
+                          Confirm Nodes
+                        </Button>
+                      ) : (
+                        ''
+                      )}
+                    </Col>
+                  </Row>
                 </FormGroup>
               </Col>
             </Row>
