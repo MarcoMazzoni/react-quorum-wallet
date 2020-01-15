@@ -1,8 +1,16 @@
-import { web3Providers, contractOfNode } from './contractConfiguration';
+import Web3 from 'web3';
+import {
+  web3Providers,
+  contractOfNode,
+  TX_MANAGER,
+  TxManager,
+  txManagerProviders
+} from './contractConfiguration';
+import { MyToken } from './MyToken';
 
 export const nodeList: string[] = ['Node1', 'Node2', 'Node3', 'Node4', 'Node5'];
 
-export const getWeb3ProviderFromNode = (name: string): any => {
+export const getWeb3ProviderFromNode = (name: string): Web3 => {
   switch (name) {
     case 'Node1':
       return web3Providers[0];
@@ -15,11 +23,11 @@ export const getWeb3ProviderFromNode = (name: string): any => {
     case 'Node5':
       return web3Providers[4];
     default:
-      return;
+      return new Web3();
   }
 };
 
-export const getContractByNode = (name: string): any => {
+export const getContractByNode = (name: string): MyToken => {
   switch (name) {
     case 'Node1':
       return contractOfNode[0];
@@ -32,8 +40,50 @@ export const getContractByNode = (name: string): any => {
     case 'Node5':
       return contractOfNode[4];
     default:
+      return contractOfNode[0];
+  }
+};
+
+export const getTxManagerByNode = (name: string): TxManager => {
+  switch (name) {
+    case 'Node1':
+      return TX_MANAGER[0];
+    case 'Node2':
+      return TX_MANAGER[1];
+    case 'Node3':
+      return TX_MANAGER[2];
+    case 'Node4':
+      return TX_MANAGER[3];
+    case 'Node5':
+      return TX_MANAGER[4];
+    default:
+      return { privateUrl: '', publicKey: '' };
+  }
+};
+
+export const getTxManagerProviderByNode = (name: string): any => {
+  switch (name) {
+    case 'Node1':
+      return txManagerProviders[0];
+    case 'Node2':
+      return txManagerProviders[1];
+    case 'Node3':
+      return txManagerProviders[2];
+    case 'Node4':
+      return txManagerProviders[3];
+    case 'Node5':
+      return txManagerProviders[4];
+    default:
       return;
   }
+};
+
+export const getAllTesseraPublicKeys = (): string[] => {
+  let keys: string[] = [];
+  for (let i = 0, length = TX_MANAGER.length; i < length; ++i) {
+    keys.push(TX_MANAGER[i].publicKey);
+  }
+  return keys;
 };
 
 export const getAccountListFromNode = async (

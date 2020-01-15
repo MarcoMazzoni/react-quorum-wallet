@@ -14,7 +14,18 @@ import {
 } from 'reactstrap';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
-import { getContractByNode, nodeList } from '../contract/utils';
+import {
+  getContractByNode,
+  nodeList,
+  getTxManagerByNode,
+  getTxManagerProviderByNode,
+  getWeb3ProviderFromNode,
+  getAllTesseraPublicKeys
+} from '../contract/utils';
+import { contractAddress } from '../contract/contractConfiguration';
+import { ErrorModal } from './ErrorModal';
+import { SuccessModal } from './SuccessModal';
+import { TransactionReceipt } from 'web3-core';
 
 interface TransactionCardProps {
   allNodesAccounts: string[];
@@ -27,6 +38,11 @@ interface TransactionCardState {
   receipt: TransactionReceiptCustom;
   private: boolean;
   selectedCheckboxes: Set<string>;
+  privateFor: string[];
+  submittedNodes: boolean;
+  errorModalMsg: string;
+  errorModalShow: boolean;
+  successModalShow: boolean;
 }
 
 type Props = TransactionCardProps & LinkStateProps & LinkDispatchProps;
@@ -53,7 +69,12 @@ export class TransactionCard extends React.Component<
         gasUsed: 0
       },
       private: false,
-      selectedCheckboxes: new Set<string>()
+      selectedCheckboxes: new Set<string>(),
+      privateFor: [],
+      submittedNodes: false,
+      errorModalMsg: '',
+      errorModalShow: false,
+      successModalShow: false
     };
 
     this.validateAmount = this.validateAmount.bind(this);
@@ -65,32 +86,72 @@ export class TransactionCard extends React.Component<
     this.handleSubmitPrivateNodes = this.handleSubmitPrivateNodes.bind(this);
   }
 
-  sendMoney() {
+  async sendMoney() {
     let recepient: string = this.state.recepient;
     let amount: string = this.state.amountValue;
+    let fromTesseraKey: string = getTxManagerByNode(this.props.node.name)
+      .publicKey;
+    let toTesseraKeys: string[] = [];
+    let fromAddress: string = this.props.node.accountSelected.slice(2);
+    let contractInstance = getContractByNode(this.props.node.name);
+    let transferMethodPayload = contractInstance.methods
+      .transfer(recepient, amount)
+      .encodeABI();
+    let web3 = getWeb3ProviderFromNode(this.props.node.name);
 
-    getContractByNode(this.props.node.name)
-      .methods.transfer(recepient, amount)
-      .send({ from: this.props.node.accountSelected })
-      .then((receipt: TransactionReceiptCustom) => {
-        this.setState(prevState => ({
-          receipt: {
-            ...prevState.receipt,
-            status: receipt.status,
-            transactionHash: receipt.transactionHash,
-            transactionIndex: receipt.transactionIndex,
-            blockHash: receipt.blockHash,
-            blockNumber: receipt.blockNumber,
-            from: receipt.from,
-            to: receipt.to,
-            cumulativeGasUsed: receipt.cumulativeGasUsed,
-            gasUsed: receipt.gasUsed
-          }
-        }));
-      });
+    // If transaction is not private, send transaction to all nodes
+    if (!this.state.private) {
+      toTesseraKeys = getAllTesseraPublicKeys();
+    }
+    // else, send the transaction only to selected nodes from checkbox
+    else {
+      if (this.state.selectedCheckboxes.size > 0 && this.state.submittedNodes) {
+        toTesseraKeys = this.state.privateFor;
+      } else {
+        if (this.state.selectedCheckboxes.size == 0)
+          this.setState({
+            errorModalMsg: 'You must select at least one node!',
+            errorModalShow: true
+          });
+        else if (this.state.submittedNodes == false)
+          this.setState({
+            errorModalMsg:
+              'You must confirm selected nodes for private transaction!',
+            errorModalShow: true
+          });
+      }
+    }
+
+    if (toTesseraKeys.length != 0) {
+      web3.eth
+        .sendTransaction({
+          from: fromAddress,
+          to: contractAddress,
+          gasPrice: 0,
+          data: transferMethodPayload,
+          privateFrom: fromTesseraKey,
+          privateFor: toTesseraKeys
+        })
+        .catch((err: any) => console.log(err))
+        .then((receipt: any) => {
+          this.setState(prevState => ({
+            receipt: {
+              ...prevState.receipt,
+              status: receipt.status,
+              transactionHash: receipt.transactionHash,
+              transactionIndex: receipt.transactionIndex,
+              blockHash: receipt.blockHash,
+              blockNumber: receipt.blockNumber,
+              from: receipt.from,
+              to: receipt.to,
+              cumulativeGasUsed: receipt.cumulativeGasUsed,
+              gasUsed: receipt.gasUsed
+            },
+            successModalShow: true
+          }));
+        });
+    }
   }
-
-  sendPrivateMoney() {}
 
   listAccounts() {
     let allAccounts: string[] = this.props.allNodesAccounts;
@@ -119,9 +180,11 @@ export class TransactionCard extends React.Component<
   }
 
   handleSubmitPrivateNodes() {
+    let pubKeysList: string[] = [];
     this.state.selectedCheckboxes.forEach(checkbox => {
-      console.log(checkbox, 'is selected.');
+      pubKeysList.push(getTxManagerByNode(checkbox).publicKey);
     });
+    this.setState({ privateFor: pubKeysList, submittedNodes: true });
   }
 
   addToSelectedCheckboxList(event: React.FormEvent) {
@@ -205,13 +268,15 @@ export class TransactionCard extends React.Component<
             <Row>
               <Col lg="11">
                 <FormGroup>
-                  <CustomInput
-                    type="checkbox"
-                    label="Make this transaction Private"
-                    id="exampleCustomSwitch"
-                    name="customSwitch"
-                    onChange={this.togglePrivateList}
-                  ></CustomInput>
+                  <div className="h5 mt-4">
+                    <CustomInput
+                      type="checkbox"
+                      label="Make this transaction Private"
+                      id="exampleCustomSwitch"
+                      name="customSwitch"
+                      onChange={this.togglePrivateList}
+                    ></CustomInput>
+                  </div>
                 </FormGroup>
               </Col>
             </Row>
@@ -260,9 +325,52 @@ export class TransactionCard extends React.Component<
             >
               Send Money
             </Button>
+            <ErrorModal
+              errorText={this.state.errorModalMsg}
+              isOpen={this.state.errorModalShow}
+              onExit={() => this.setState({ errorModalShow: false })}
+            ></ErrorModal>
+            <SuccessModal
+              receipt={this.state.receipt}
+              isOpen={this.state.successModalShow}
+              onExit={() => this.setState({ successModalShow: false })}
+            ></SuccessModal>
           </div>
         </CardFooter>
       </Card>
     );
   }
 }
+
+/*
+  async sendMoney() {
+    let recepient: string = this.state.recepient;
+    let amount: string = this.state.amountValue;
+
+    if (!this.state.private) {
+      getContractByNode(this.props.node.name)
+        .methods.transfer(recepient, amount)
+        .send({ from: this.props.node.accountSelected })
+        .then((receipt: TransactionReceiptCustom) => {
+          this.setState(prevState => ({
+            receipt: {
+              ...prevState.receipt,
+              status: receipt.status,
+              transactionHash: receipt.transactionHash,
+              transactionIndex: receipt.transactionIndex,
+              blockHash: receipt.blockHash,
+              blockNumber: receipt.blockNumber,
+              from: receipt.from,
+              to: receipt.to,
+              cumulativeGasUsed: receipt.cumulativeGasUsed,
+              gasUsed: receipt.gasUsed
+            }
+          }));
+          console.log(receipt);
+        })
+        .catch((err: any) => console.log(err));
+    } else {
+      await this.sendPrivateMoney(recepient, amount);
+    }
+  }
+  */

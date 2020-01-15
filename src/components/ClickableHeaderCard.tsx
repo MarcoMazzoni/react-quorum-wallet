@@ -16,15 +16,7 @@ import {
   CustomInput,
   Container
 } from 'reactstrap';
-import { nodeList, getAccountListFromNode } from '../contract/utils';
-import { QuorumNode } from '../interfaces/Node.interface';
-import { AppState } from '../store/configureStore';
-import { AppActions } from '../interfaces/Actions.interface';
-import { changeNode } from '../actions/nodes';
-import { ThunkDispatch } from 'redux-thunk';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { string } from 'prop-types';
+import { nodeList } from '../contract/utils';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
 
 interface ClickableCardProps {
