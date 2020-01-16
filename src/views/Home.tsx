@@ -53,13 +53,6 @@ export class Home extends React.Component<Props, HomeState> {
 
     this.getBalance = this.getBalance.bind(this);
     this.getAllAccounts = this.getAllAccounts.bind(this);
-    //this.setMethod = this.setMethod.bind(this);
-  }
-
-  async getAccountZero() {
-    let accounts: string[] = this.props.node.accounts;
-    let accountZero: string = accounts[0];
-    return accountZero;
   }
 
   async getBalance() {
@@ -116,19 +109,8 @@ export class Home extends React.Component<Props, HomeState> {
     });
   }
 
-  renderAnswer() {
-    if (this.state.methodName === 'GET')
-      return <h3 className="text-white mb-0"> {this.state.res} </h3>;
-    else if (this.state.methodName === 'GET_ACCOUNTS')
-      return <ul>{this.printAllAccounts()}</ul>;
-    else if (this.state.methodName === 'SET')
-      return <ul>{this.printAccountList()}</ul>;
-    else return <p> Click a Method Button please </p>;
-  }
-
   componentDidMount() {
     document.body.classList.add('bg-default');
-    this.props.startChangeNode(nodeList[0]);
     this.getAllAccounts();
   }
 
