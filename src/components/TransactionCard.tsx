@@ -10,7 +10,8 @@ import {
   Label,
   CustomInput,
   Col,
-  CardFooter
+  CardFooter,
+  ButtonToggle
 } from 'reactstrap';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
@@ -60,7 +61,6 @@ export class TransactionCard extends React.Component<
       receipt: {
         status: false,
         transactionHash: '',
-        transactionIndex: 0,
         blockHash: '',
         blockNumber: 0,
         from: '',
@@ -219,12 +219,12 @@ export class TransactionCard extends React.Component<
   render() {
     return (
       <Card className="bg-secondary shadow border-0">
-        <CardHeader className="bg-transparent pb-5">
-          <Row className="align-items-center">
-            <div className="col">
-              <h6 className="text-uppercase text-muted ls-1 mb-1">Welcome!</h6>
-              <h2 className="mb-0">Make a Transaction</h2>
-            </div>
+        <CardHeader className="bg-transparent">
+          <Row className="justify-content-center">
+            <h2 className="mb-0">Welcome!</h2>
+          </Row>
+          <Row className="justify-content-center">
+            <h2 className="mb-0">Make a Transaction</h2>
           </Row>
         </CardHeader>
         <CardBody className="px-lg-5 py-lg-5">
@@ -284,18 +284,15 @@ export class TransactionCard extends React.Component<
             <Row>
               <Col lg="11">
                 <FormGroup>
-                  <label
-                    className="form-control-label"
-                    htmlFor="input-first-name"
-                  >
+                  <label className="form-control-label">
                     {this.state.private ? 'Private for:' : ''}
                   </label>
-                  <Row className="align-items-center">
+                  <Row className="justify-content-center">
                     <Col lg="8">{this.showPrivateForList()}</Col>
 
                     <Col lg="3">
                       {this.state.private ? (
-                        <Button
+                        <ButtonToggle
                           className="float-center"
                           color="default"
                           type="button"
@@ -303,7 +300,7 @@ export class TransactionCard extends React.Component<
                           size="sm"
                         >
                           Confirm Nodes
-                        </Button>
+                        </ButtonToggle>
                       ) : (
                         ''
                       )}

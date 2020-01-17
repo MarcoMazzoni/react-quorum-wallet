@@ -19,6 +19,7 @@
     "@types/redux-thunk": "^2.1.0",
     "abi-decoder": "^2.2.2",
     "bootstrap": "^4.4.1",
+    "copy-to-clipboard": "^3.2.0",
     "node-sass": "^4.13.0",
     "quorum-js": "^0.3.4",
     "react": "^16.12.0",

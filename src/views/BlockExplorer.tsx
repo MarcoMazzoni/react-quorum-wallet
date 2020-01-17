@@ -12,7 +12,9 @@ import {
   Input,
   FormGroup,
   Col,
-  CardFooter
+  CardFooter,
+  Label,
+  CustomInput
 } from 'reactstrap';
 import { ThunkDispatch } from 'redux-thunk';
 import { AppActions } from '../interfaces/Actions.interface';
@@ -23,13 +25,21 @@ import { getWeb3ProviderFromNode } from '../contract/utils';
 import { ResultExplorerCard } from '../components/ResultExplorerCard';
 import { Transaction } from 'web3-eth';
 import Web3 from 'web3';
+import { tsThisType } from '@babel/types';
 
+enum RadioOptions {
+  txHash,
+  blockHash
+}
 
 interface BlockExplorerProps {}
+
 interface BlockExplorerState {
   showCards: boolean;
   txList: Transaction[];
+  selectedOption: RadioOptions;
 }
+
 type Props = BlockExplorerProps & LinkStateProps & LinkDispatchProps;
 
 class BlockExplorer extends React.Component<Props, BlockExplorerState> {
@@ -40,7 +50,8 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
     super(props);
     this.state = {
       showCards: false,
-      txList: []
+      txList: [],
+      selectedOption: RadioOptions.txHash
     };
     this.blockRef = React.createRef();
     this.txRef = React.createRef();
@@ -48,6 +59,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
     this.onClearClick = this.onClearClick.bind(this);
     this.showResponseCards = this.showResponseCards.bind(this);
     this.searchByTxHash = this.searchByTxHash.bind(this);
+    this.renderSearcher = this.renderSearcher.bind(this);
   }
 
   async searchByTxHash(txHash: string) {
@@ -70,6 +82,14 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
 
   onClearClick() {
     this.setState({ showCards: false });
+    if (this.txRef.current) this.txRef.current.innerText = '';
+    if (this.blockRef.current) this.blockRef.current.innerText = '';
+  }
+
+  handleRadioChange(option: RadioOptions) {
+    this.setState({
+      selectedOption: option
+    });
   }
 
   showResponseCards() {
@@ -82,6 +102,41 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
     document.body.classList.add('bg-default');
   }
 
+  renderSearcher(option: RadioOptions) {
+    switch (option) {
+      case RadioOptions.txHash:
+        return (
+          <Row>
+            <Col lg="11">
+              <FormGroup>
+                <label className="form-control-label">Transaction Hash</label>
+                <Input
+                  type="text"
+                  innerRef={this.txRef}
+                  placeholder="Enter tx hash"
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+        );
+      case RadioOptions.blockHash:
+        return (
+          <Row>
+            <Col lg="11">
+              <FormGroup>
+                <label className="form-control-label">Block Hash</label>
+                <Input
+                  type="text"
+                  placeholder="Enter block hash"
+                  innerRef={this.blockRef}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+        );
+    }
+  }
+
   render() {
     return (
       <>
@@ -89,7 +144,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
         {/* Page content */}
         <Container className="mt--7" fluid>
           <Row className="justify-content-center">
-            <Col xl="12">
+            <Col xl="10">
               <Card className="bg-secondary shadow border-0">
                 <CardHeader className="bg-transparent">
                   <Row className="align-items-center">
@@ -106,34 +161,35 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
                 </CardHeader>
                 <CardBody className="px-lg-5 py-lg-5">
                   <div className="pl-lg-4">
-                    <Row>
-                      <Col lg="11">
-                        <FormGroup>
-                          <label className="form-control-label">
-                            Block Hash
-                          </label>
-                          <Input
-                            type="text"
-                            placeholder="Enter block hash"
-                            innerRef={this.blockRef}
-                          />
-                        </FormGroup>
-                      </Col>
+                    <Row className="justify-content-center">
+                      <FormGroup>
+                        <CustomInput
+                          type="radio"
+                          label="Transaction Hash"
+                          id="radio1"
+                          checked={
+                            this.state.selectedOption === RadioOptions.txHash
+                          }
+                          onChange={() =>
+                            this.handleRadioChange(RadioOptions.txHash)
+                          }
+                          inline
+                        ></CustomInput>
+                        <CustomInput
+                          type="radio"
+                          label="Block Hash"
+                          id="radio2"
+                          checked={
+                            this.state.selectedOption === RadioOptions.blockHash
+                          }
+                          onChange={() =>
+                            this.handleRadioChange(RadioOptions.blockHash)
+                          }
+                          inline
+                        ></CustomInput>
+                      </FormGroup>
                     </Row>
-                    <Row>
-                      <Col lg="11">
-                        <FormGroup>
-                          <label className="form-control-label">
-                            Transaction Hash
-                          </label>
-                          <Input
-                            type="text"
-                            innerRef={this.txRef}
-                            placeholder="Enter tx hash"
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>
+                    {this.renderSearcher(this.state.selectedOption)}
                   </div>
                 </CardBody>
 

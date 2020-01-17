@@ -39,7 +39,6 @@ export class Home extends React.Component<Props, HomeState> {
       rec: {
         status: false,
         transactionHash: '',
-        transactionIndex: 0,
         blockHash: '',
         blockNumber: 0,
         from: '',

@@ -7,7 +7,6 @@ export interface TransactionReceiptCustom {
   blockHash: string;
   blockNumber: number;
   transactionHash: string;
-  transactionIndex: number;
   from: string;
   to: string;
   cumulativeGasUsed: number;
