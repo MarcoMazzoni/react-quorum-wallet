@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { QuorumNode } from '../interfaces/Node.interface';
-import { AppState, store } from '../store/configureStore';
+import { AppState } from '../store/configureStore';
 import Header from '../components/Header';
 import {
   Container,
@@ -11,22 +11,19 @@ import {
   Button,
   Input,
   FormGroup,
-  Label,
-  CustomInput,
   Col,
   CardFooter
 } from 'reactstrap';
-import { TransactionCard } from '../components/TransactionCard';
 import { ThunkDispatch } from 'redux-thunk';
 import { AppActions } from '../interfaces/Actions.interface';
 import { bindActionCreators } from 'redux';
 import { startChangeNode, startChangeAccount } from '../actions/nodes';
 import { connect } from 'react-redux';
-import { nodeList, getWeb3ProviderFromNode } from '../contract/utils';
+import { getWeb3ProviderFromNode } from '../contract/utils';
 import { ResultExplorerCard } from '../components/ResultExplorerCard';
 import { Transaction } from 'web3-eth';
-import { web3Providers } from '../contract/contractConfiguration';
 import Web3 from 'web3';
+
 
 interface BlockExplorerProps {}
 interface BlockExplorerState {
