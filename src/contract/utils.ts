@@ -7,11 +7,12 @@ import {
   txManagerProviders
 } from './contractConfiguration';
 import { MyToken } from './MyToken';
-import util from 'util';
-
+import { myTokenAbi } from './myToken-abi';
 const rp = require('request-promise-native');
+const InputDataDecoder = require('ethereum-input-data-decoder');
 
 export const nodeList: string[] = ['Node1', 'Node2', 'Node3', 'Node4', 'Node5'];
+export const decoder =  new InputDataDecoder(myTokenAbi);
 
 export const getWeb3ProviderFromNode = (name: string): Web3 => {
   switch (name) {

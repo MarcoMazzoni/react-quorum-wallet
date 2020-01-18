@@ -5,7 +5,7 @@ const quorumjs = require('quorum-js');
 
 // Deployment address of the Smart Contract
 export const contractAddress: string =
-  '0x4d7D370B74C80aFd1DD9857eB238f9d60720DA0a';
+  '0x60D1269257887645A8874439aABb5C9a5Fb742dA';
 
 export interface TxManager {
   privateUrl: string;
@@ -15,23 +15,23 @@ export interface TxManager {
 export const TX_MANAGER: TxManager[] = [
   {
     privateUrl: 'http://localhost:27001',
-    publicKey: '0Vl+CoAt9LJ2YTFAR9+B/x1ES/2WwdZRgH2iXd1St3s='
+    publicKey: 'aN7yySSxQGQsx+r8NJdI8YXtwH6gSIZt585aWVKrV3I='
   },
   {
     privateUrl: 'http://localhost:27002',
-    publicKey: 'ZytH8CEzH2lDvg4cVh7pgFn90ISSqJ3HaXAXTGn0CUE='
+    publicKey: '6E54TChUffI3mRoTOHQPfpMktumCU29642vptg7pNGc='
   },
   {
     privateUrl: 'http://localhost:27003',
-    publicKey: 'ut3l0Q/rADeouu/9OxqZf5gH+jACnoykg3Ru4+7f9Eg='
+    publicKey: 'bvzCXdCjjtrNo8x7J6kwGCdmYiKT2EB/uBqI4uCQ6SE='
   },
   {
     privateUrl: 'http://localhost:27004',
-    publicKey: 'zU+VfBunFyIih72cz0O9JTh6l8oMl04ugw4q//jFskk='
+    publicKey: 'LQCEGDs4PBzVWjC5HeBKEc2ir7Sk6K/zIbZ+ytENdmU='
   },
   {
     privateUrl: 'http://localhost:27005',
-    publicKey: 'sc+dv1ECXQoz+fK9bhngbbbaouu9/YoImeiE463vWgw='
+    publicKey: 'evYLE3JiTzd9EHr4Cu46dI80bkNXHSsBIi6qK7zo3yw='
   }
 ];
 

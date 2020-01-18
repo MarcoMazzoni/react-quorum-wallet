@@ -2,6 +2,18 @@ export interface SendState {
   receipt: TransactionReceiptCustom;
 }
 
+interface ObjectDecoded {
+  negative: number;
+  words: number[];
+}
+
+export interface DecodedMethod {
+  inputs: [string, ObjectDecoded];
+  method: string;
+  names: string[];
+  types: string[];
+}
+
 export interface TransactionReceiptCustom {
   status: boolean;
   blockHash: string;

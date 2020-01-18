@@ -92,7 +92,7 @@ export class TransactionCard extends React.Component<
     let fromTesseraKey: string = getTxManagerByNode(this.props.node.name)
       .publicKey;
     let toTesseraKeys: string[] = [];
-    let fromAddress: string = this.props.node.accountSelected.slice(2);
+    let fromAddress: string = this.props.node.accountSelected; //.slice(2);
     let contractInstance = getContractByNode(this.props.node.name);
     let transferMethodPayload = contractInstance.methods
       .transfer(recepient, amount)
