@@ -7,8 +7,8 @@ import {
 
 const nodeReducerDefaultState: QuorumNode = {
   name: 'Node1',
-  accounts: ['0x0'],
-  accountSelected: '0x0'
+  accounts: ['0xf224f4C105A8EfcBc45E970b8d20068Ea75FDBe3'],
+  accountSelected: '0xf224f4C105A8EfcBc45E970b8d20068Ea75FDBe3'
 };
 
 const nodeReducer = (

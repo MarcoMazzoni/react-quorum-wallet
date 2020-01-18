@@ -7,6 +7,9 @@ import {
   txManagerProviders
 } from './contractConfiguration';
 import { MyToken } from './MyToken';
+import util from 'util';
+
+const rp = require('request-promise-native');
 
 export const nodeList: string[] = ['Node1', 'Node2', 'Node3', 'Node4', 'Node5'];
 
@@ -105,6 +108,52 @@ export const getAllAccountsFromAllNodes = async (): Promise<string[]> => {
     allAccounts = [...allAccounts, ...accountList];
   }
   return allAccounts;
+};
+
+const getHostsFromWeb3Provider = (nodeName: string): string => {
+  switch (nodeName) {
+    case 'Node1':
+      return 'http://localhost:23001';
+    case 'Node2':
+      return 'http://localhost:23002';
+    case 'Node3':
+      return 'http://localhost:23003';
+    case 'Node4':
+      return 'http://localhost:23004';
+    case 'Node5':
+      return 'http://localhost:23005';
+    default:
+      return '';
+  }
+};
+
+interface ResultObjectAPI {
+  id: number;
+  jsonrpc: string;
+  result: string;
+}
+
+export const getQuorumPayloadRequest = async (
+  payload: string,
+  nodeName: string
+) => {
+  let host: string = getHostsFromWeb3Provider(nodeName);
+  const quorumPayloadRequest = {
+    method: 'POST',
+    // eslint-disable-next-line no-underscore-dangle
+    uri: host,
+    json: true,
+    body: {
+      jsonrpc: '2.0',
+      method: 'eth_getQuorumPayload',
+      params: [payload],
+      id: '1'
+    }
+  };
+
+  return rp(quorumPayloadRequest).then((res: ResultObjectAPI) => {
+    return res.result;
+  });
 };
 
 // non farlo mai

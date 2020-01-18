@@ -23,9 +23,12 @@ import { startChangeNode, startChangeAccount } from '../actions/nodes';
 import { connect } from 'react-redux';
 import { getWeb3ProviderFromNode } from '../contract/utils';
 import { ResultExplorerCard } from '../components/ResultExplorerCard';
-import { Transaction } from 'web3-eth';
+import { Transaction, Block, BlockTransactionObject } from 'web3-eth';
 import Web3 from 'web3';
 import { tsThisType } from '@babel/types';
+import { supportsGoWithoutReloadUsingHash } from 'history/DOMUtils';
+import { ErrorModal } from '../components/ErrorModal';
+import { BlockNumber } from 'web3-core';
 
 enum RadioOptions {
   txHash,
@@ -38,6 +41,8 @@ interface BlockExplorerState {
   showCards: boolean;
   txList: Transaction[];
   selectedOption: RadioOptions;
+  errorModalMsg: string;
+  errorModalShow: boolean;
 }
 
 type Props = BlockExplorerProps & LinkStateProps & LinkDispatchProps;
@@ -51,7 +56,9 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
     this.state = {
       showCards: false,
       txList: [],
-      selectedOption: RadioOptions.txHash
+      selectedOption: RadioOptions.txHash,
+      errorModalMsg: '',
+      errorModalShow: false
     };
     this.blockRef = React.createRef();
     this.txRef = React.createRef();
@@ -62,28 +69,82 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
     this.renderSearcher = this.renderSearcher.bind(this);
   }
 
-  async searchByTxHash(txHash: string) {
-    let txList: Transaction[] = [];
-    let web3: Web3 = getWeb3ProviderFromNode(this.props.node.name);
-    let response: Transaction = await web3.eth.getTransaction(txHash);
-    txList.push(response);
-    return txList;
+  async searchByTxHash(txHash: string, web3: Web3) {
+    web3.eth
+      .getTransaction(txHash)
+      .catch((error: Error) => {
+        let errortext: string = error.message;
+        this.setState({
+          errorModalMsg: errortext,
+          errorModalShow: true
+        });
+      })
+      .then((response: Transaction | void) => {
+        let responseList: Transaction[] = [];
+        if (response) {
+          responseList.push(response as Transaction);
+          this.setState({ showCards: true, txList: responseList });
+        } else {
+          this.setState({
+            errorModalMsg:
+              'The Transaction hash you are looking for\ndoes not exist on the Blockchain!',
+            errorModalShow: true
+          });
+        }
+      });
+  }
+
+  async searchByBlockHash(blockHash: BlockNumber, web3: Web3) {
+    console.log(blockHash);
+
+    // getBlock does not work for some weird reason
+    // so I used getTransactionFromBlocl, with TransactionIndex = 0,
+    // since in Quorum-Raft there is just one block per transaction
+    web3.eth
+      .getTransactionFromBlock(blockHash, 0)
+      .catch((error: Error) => {
+        let errortext: string = error.message;
+        this.setState({
+          errorModalMsg: errortext,
+          errorModalShow: true
+        });
+      })
+      .then(block => {
+        if (block) {
+          //console.log(block);
+          let responseList: Transaction[] = [];
+          responseList.push(block);
+          this.setState({ showCards: true, txList: responseList });
+        } else {
+          this.setState({
+            errorModalMsg:
+              'The Block hash you are looking for\ndoes not exist on the Blockchain!',
+            errorModalShow: true
+          });
+        }
+      });
   }
 
   async onSearchClick() {
-    let txHash: string = '';
-    let responseList: Transaction[] = [];
-    if (this.txRef.current) {
-      txHash = this.txRef.current.value;
-      responseList = await this.searchByTxHash(txHash);
-      this.setState({ showCards: true, txList: responseList });
+    this.onClearClick();
+    let web3: Web3 = getWeb3ProviderFromNode(this.props.node.name);
+    if (this.state.selectedOption === RadioOptions.txHash) {
+      let txHash: string = '';
+      if (this.txRef.current) {
+        txHash = this.txRef.current.value;
+        await this.searchByTxHash(txHash, web3);
+      }
+    } else {
+      let blockHash: BlockNumber;
+      if (this.blockRef.current) {
+        blockHash = this.blockRef.current.value;
+        await this.searchByBlockHash(blockHash, web3);
+      }
     }
   }
 
   onClearClick() {
     this.setState({ showCards: false });
-    if (this.txRef.current) this.txRef.current.innerText = '';
-    if (this.blockRef.current) this.blockRef.current.innerText = '';
   }
 
   handleRadioChange(option: RadioOptions) {
@@ -93,17 +154,21 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
   }
 
   showResponseCards() {
-    return this.state.txList.map((value: Transaction, index: number) => {
-      return <ResultExplorerCard transaction={value} />;
-    });
+    if (this.state.txList.length != 0) {
+      return this.state.txList.map((value: Transaction, index: number) => {
+        return (
+          <ResultExplorerCard node={this.props.node} transaction={value} />
+        );
+      });
+    }
   }
 
   componentDidMount() {
     document.body.classList.add('bg-default');
   }
 
-  renderSearcher(option: RadioOptions) {
-    switch (option) {
+  renderSearcher() {
+    switch (this.state.selectedOption) {
       case RadioOptions.txHash:
         return (
           <Row>
@@ -124,7 +189,9 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
           <Row>
             <Col lg="11">
               <FormGroup>
-                <label className="form-control-label">Block Hash</label>
+                <label className="form-control-label">
+                  Block Hash or Block Number
+                </label>
                 <Input
                   type="text"
                   placeholder="Enter block hash"
@@ -134,6 +201,8 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
             </Col>
           </Row>
         );
+      default:
+        return '';
     }
   }
 
@@ -154,7 +223,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
                       </h6>
                       <h2 className="mb-0">Search a Transaction!</h2>
                       <h4 className="mb-0">
-                        Insert a block hash or a transaction hash.
+                        Insert a block hash, block number or transaction hash.
                       </h4>
                     </div>
                   </Row>
@@ -177,7 +246,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
                         ></CustomInput>
                         <CustomInput
                           type="radio"
-                          label="Block Hash"
+                          label="Block Hash or Block Number"
                           id="radio2"
                           checked={
                             this.state.selectedOption === RadioOptions.blockHash
@@ -189,7 +258,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
                         ></CustomInput>
                       </FormGroup>
                     </Row>
-                    {this.renderSearcher(this.state.selectedOption)}
+                    {this.renderSearcher()}
                   </div>
                 </CardBody>
 
@@ -199,7 +268,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
                       className="mt-4"
                       color="default"
                       type="button"
-                      onClick={this.onSearchClick}
+                      onClick={() => this.onSearchClick()}
                     >
                       Search
                     </Button>
@@ -207,10 +276,15 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
                       className="mt-4"
                       color="primary"
                       type="button"
-                      onClick={this.onClearClick}
+                      onClick={() => this.onClearClick()}
                     >
                       Clear
                     </Button>
+                    <ErrorModal
+                      errorText={this.state.errorModalMsg}
+                      isOpen={this.state.errorModalShow}
+                      onExit={() => this.setState({ errorModalShow: false })}
+                    ></ErrorModal>
                   </div>
                 </CardFooter>
               </Card>
