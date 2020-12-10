@@ -1,0 +1,21 @@
+version: '3.6'
+services:
+  scudo-webapp:
+    image: scudo-app-prod
+    networks:
+      quorum-tessera_quorum_net:
+        ipv4_address: '172.13.0.10'
+    ports:
+      - 5000:80
+
+  proxy:
+    image: nginx-proxy
+    networks:
+      quorum-tessera_quorum_net:
+        ipv4_address: '172.13.0.11'
+    ports:
+      - 80:80
+
+networks:
+  quorum-tessera_quorum_net:
+    external: true
