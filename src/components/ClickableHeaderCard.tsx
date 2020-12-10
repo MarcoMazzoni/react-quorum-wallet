@@ -12,9 +12,7 @@ import {
   Button,
   FormGroup,
   Label,
-  Input,
-  CustomInput,
-  Container
+  Input
 } from 'reactstrap';
 import { nodeList } from '../contract/utils';
 import { LinkStateProps, LinkDispatchProps } from '../views/Home';

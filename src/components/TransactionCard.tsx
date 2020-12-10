@@ -7,7 +7,6 @@ import {
   Button,
   Input,
   FormGroup,
-  Label,
   CustomInput,
   Col,
   CardFooter,
@@ -19,14 +18,11 @@ import {
   getContractByNode,
   nodeList,
   getTxManagerByNode,
-  getTxManagerProviderByNode,
-  getWeb3ProviderFromNode,
   getAllTesseraPublicKeys
 } from '../contract/utils';
 import { contractAddress } from '../contract/contractConfiguration';
 import { ErrorModal } from './ErrorModal';
 import { SuccessModal } from './SuccessModal';
-import { TransactionReceipt } from 'web3-core';
 
 interface TransactionCardProps {
   allNodesAccounts: string[];
@@ -94,10 +90,6 @@ export class TransactionCard extends React.Component<
     let toTesseraKeys: string[] = [];
     let fromAddress: string = this.props.node.accountSelected; //.slice(2);
     let contractInstance = getContractByNode(this.props.node.name);
-    let transferMethodPayload = contractInstance.methods
-      .transfer(recepient, amount)
-      .encodeABI();
-    let web3 = getWeb3ProviderFromNode(this.props.node.name);
 
     // If transaction is not private, send transaction to all nodes
     if (!this.state.private) {
@@ -108,12 +100,12 @@ export class TransactionCard extends React.Component<
       if (this.state.selectedCheckboxes.size > 0 && this.state.submittedNodes) {
         toTesseraKeys = this.state.privateFor;
       } else {
-        if (this.state.selectedCheckboxes.size == 0)
+        if (this.state.selectedCheckboxes.size === 0)
           this.setState({
             errorModalMsg: 'You must select at least one node!',
             errorModalShow: true
           });
-        else if (this.state.submittedNodes == false)
+        else if (this.state.submittedNodes === false)
           this.setState({
             errorModalMsg:
               'You must confirm selected nodes for private transaction!',
@@ -122,15 +114,16 @@ export class TransactionCard extends React.Component<
       }
     }
 
-    if (toTesseraKeys.length != 0) {
-      web3.eth
-        .sendTransaction({
+    if (toTesseraKeys.length !== 0) {
+      contractInstance.methods
+        .transfer(recepient, amount)
+        .send({
           from: fromAddress,
           to: contractAddress,
           gasPrice: 0,
-          data: transferMethodPayload,
           privateFrom: fromTesseraKey,
-          privateFor: toTesseraKeys
+          privateFor: toTesseraKeys,
+          isPrivate: true
         })
         .catch((err: any) => console.log(err))
         .then((receipt: any) => {
@@ -285,7 +278,7 @@ export class TransactionCard extends React.Component<
               <Col lg="11">
                 <FormGroup>
                   <label className="form-control-label">
-                    {this.state.private ? 'Private for:' : ''}
+                    {this.state.private ? 'Make it visible to:' : ''}
                   </label>
                   <Row className="justify-content-center">
                     <Col lg="8">{this.showPrivateForList()}</Col>

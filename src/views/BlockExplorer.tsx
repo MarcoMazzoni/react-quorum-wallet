@@ -13,7 +13,6 @@ import {
   FormGroup,
   Col,
   CardFooter,
-  Label,
   CustomInput
 } from 'reactstrap';
 import { ThunkDispatch } from 'redux-thunk';
@@ -23,10 +22,8 @@ import { startChangeNode, startChangeAccount } from '../actions/nodes';
 import { connect } from 'react-redux';
 import { getWeb3ProviderFromNode } from '../contract/utils';
 import { ResultExplorerCard } from '../components/ResultExplorerCard';
-import { Transaction, Block, BlockTransactionObject } from 'web3-eth';
+import { Transaction } from 'web3-eth';
 import Web3 from 'web3';
-import { tsThisType } from '@babel/types';
-import { supportsGoWithoutReloadUsingHash } from 'history/DOMUtils';
 import { ErrorModal } from '../components/ErrorModal';
 import { BlockNumber } from 'web3-core';
 
@@ -154,7 +151,7 @@ class BlockExplorer extends React.Component<Props, BlockExplorerState> {
   }
 
   showResponseCards() {
-    if (this.state.txList.length != 0) {
+    if (this.state.txList.length !== 0) {
       return this.state.txList.map((value: Transaction, index: number) => {
         return (
           <ResultExplorerCard node={this.props.node} transaction={value} />

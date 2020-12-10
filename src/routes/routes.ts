@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Home from '../views/Home';
 import BlockExplorer from '../views/BlockExplorer';
 import Login from '../views/Login';

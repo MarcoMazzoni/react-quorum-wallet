@@ -1,17 +1,16 @@
 import React from 'react';
 // reactstrap components
-import { Card, CardHeader, CardBody, Container, Row, Col } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 
 import Header from '../components/Header';
 
 import {
   getAllAccountsFromAllNodes,
-  nodeList,
   getContractByNode
 } from '../contract/utils';
 
 import { TransactionReceiptCustom } from '../interfaces/Send.interface';
-import { Dispatch, bindActionCreators } from 'redux';
+import { bindActionCreators } from 'redux';
 import { AppActions } from '../interfaces/Actions.interface';
 import { ThunkDispatch } from 'redux-thunk';
 import { QuorumNode } from '../interfaces/Node.interface';
