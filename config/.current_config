@@ -1,0 +1,79 @@
+#!/bin/bash
+
+#### Configuration options #############################################
+
+# Host ports
+rpc_start_port=23000
+node_start_port=24000
+raft_start_port=25000
+ws_start_port=26000
+tessera_start_port=27000
+
+# Containers ports
+raft_port=50400
+tessera_port=9000
+rlp_port=30303
+rpc_port=8545
+ws_port=8546
+
+# VIP Subnet
+subnet="172.13.0.0/16"
+
+# Use docker host network for RLP connection.
+#use_host_net=true
+
+# Interface IP for RLP listening when using docker host network
+#interface_ip="172.16.1.122"
+
+# Total nodes to deploy
+total_nodes=5
+
+# Signer nodes for Clique and IBFT
+signer_nodes=5
+
+# Consensus engine ex. raft, clique, istanbul
+consensus=istanbul
+
+# Block period for IBFT and Clique
+block_period=1
+
+# Docker image name -> quorum-ibft-new, quorum-raft-ibft, quorum-2.5.0
+image=marcomazzoni/quorum:2.5.0
+
+# Service name for docker-compose.yml
+service=quorum
+
+# Send some ether for pre-defined accounts
+alloc_ether=true
+
+# Create deterministic accounts for testing purpose
+fixed_accounts=true
+
+# Create deterministic Tessera keys for testing purpose
+fixed_tessera_keys=true
+
+node_name_prefix=master
+auto_start_containers=true
+
+########################################################################
+
+[[ "$total_nodes" -lt "$signer_nodes" ]] && total_nodes=$signer_nodes
+
+
+
+master_enodes=(
+4a8b368643f0f6c2103d5e2eb0e1291bf6c2d0fb3578faeaf5ee8ccbcb6b82631fabedc6818558ee8ae46ce726800e9e28b794c9f3ca09d516c52a39c7b15cf1
+3ce91db349e72c54a17d9e1992c1a450edd209ace7e165d13a0a6b571aa9edff9246352481b9df732c385390c0cc1be03fdfc556f7f75fb17007664e9084107b
+544f322c8417da51c3b1c5d91d24f4a0b7a6b2d1eb50c7ca2a521337f5d62c459c683d538dba024ae412fde26be02033e46b81194390c6f684b6d9da929b8831
+42f7c7645156d2808b9d9c8cf20ee3a24552b1a3d3e2e9a5be28963a2b17ddbfc0383d934f98909473786b1f9ffd9f112f3d41e200df848fc1afeba055fa3475
+9e0e740102d63ef8357a729421cae60db7bb3934ab14ac452bb20320242d3864ef575db2a64453eff3e0f4e441c8b03eea27aa6bda9db46c6e0b1c714742b5fb
+)
+
+
+tessera_keys=(
+wiqpMpUGzgqB4RDUyLbmBXkcQU4NJdyES0rHg2A39jg=
+n5si7WVQCinpdFKtXV+uQ3dlDjcFMEyvj9aMOvNFdBw=
+iqTeqnvEKdwZYTsDtrH7TwYs6x2uAuovmKznmzsJiQc=
+wNoLz/knKJ6HCO1zNO4Bo8pYZJlW8Evv4vixPha3nlw=
+eTKWifO/nyNZ+euNLnrkrpjJj+lwb9DWwrZp8+C5yHk=
+)

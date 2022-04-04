@@ -1,0 +1,42 @@
+{
+  "contractAddress": "0xfEa90c68ba63B4c0fAd8270b545E480a3E82A557",
+  "nodes": [
+    {
+    "url": "http://config_node_ibft_1_1:8545",
+    "privateUrl": "http://config_node_ibft_1_1:9081",
+    "account": "0x39bfebd88ae7f3e29bf0b00536f39d8f62c0bea8",
+    "accountPassword": "",
+    "tesseraKey": "wiqpMpUGzgqB4RDUyLbmBXkcQU4NJdyES0rHg2A39jg="
+
+  },
+  {
+    "url": "http://config_node_ibft_2_1:8545",
+    "privateUrl": "http://config_node_ibft_2_1:9081",
+    "account": "0x333927daba0e7dc239ce1a9da59f8f5412ddf6d9",
+    "accountPassword": "",
+    "tesseraKey": "n5si7WVQCinpdFKtXV+uQ3dlDjcFMEyvj9aMOvNFdBw="
+  },
+  {
+    "url": "http://config_node_ibft_3_1:8545",
+    "privateUrl": "http://config_node_ibft_3_1:9081",
+    "account": "0xa2e358c6929b5b8fb5b49df6180f68442313047a",
+    "accountPassword": "",
+    "tesseraKey": "iqTeqnvEKdwZYTsDtrH7TwYs6x2uAuovmKznmzsJiQc="
+  },
+  {
+    "url": "http://config_node_ibft_4_1:8545",
+    "privateUrl": "http://config_node_ibft_4_1:9081",
+    "account": "0x0eeffba46afe0a59156d3ad941048e7460ae29f8",
+    "accountPassword": "",
+    "tesseraKey": "wNoLz/knKJ6HCO1zNO4Bo8pYZJlW8Evv4vixPha3nlw="
+  },
+  {
+    "url": "http://config_node_ibft_5_1:8545",
+    "privateUrl": "http://config_node_ibft_5_1:9081",
+    "account": "0x74c6a61fdeb23d0a7bbf591285d6596104b04525",
+    "accountPassword": "",
+    "tesseraKey": "eTKWifO/nyNZ+euNLnrkrpjJj+lwb9DWwrZp8+C5yHk="
+  }
+
+  ]
+}

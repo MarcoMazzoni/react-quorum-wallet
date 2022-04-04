@@ -1,4 +1,5 @@
 import { QuorumNode } from '../interfaces/Node.interface';
+import configJson from '../quorum-config.json';
 import {
   NodeActionTypes,
   CHANGE_NODE,
@@ -7,8 +8,8 @@ import {
 
 const nodeReducerDefaultState: QuorumNode = {
   name: 'Node1',
-  accounts: ['0xf224f4C105A8EfcBc45E970b8d20068Ea75FDBe3'],
-  accountSelected: '0xf224f4C105A8EfcBc45E970b8d20068Ea75FDBe3'
+  accounts: [configJson.nodes[0].account],
+  accountSelected: configJson.nodes[0].account
 };
 
 const nodeReducer = (

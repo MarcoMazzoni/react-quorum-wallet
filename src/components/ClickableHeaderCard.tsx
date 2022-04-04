@@ -71,7 +71,7 @@ export class ClickableHeaderCard extends React.Component<
   listNodes() {
     return nodeList.map((node: string) => {
       return (
-        <FormGroup check>
+        <FormGroup check key={node}>
           <Label check>
             <Input
               type="radio"
@@ -88,7 +88,7 @@ export class ClickableHeaderCard extends React.Component<
   listAccounts() {
     return this.props.node.accounts.map((account: string) => {
       return (
-        <FormGroup check>
+        <FormGroup check key={account}>
           <Label check>
             <Input
               type="radio"

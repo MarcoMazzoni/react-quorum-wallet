@@ -150,7 +150,7 @@ export class TransactionCard extends React.Component<
     let allAccounts: string[] = this.props.allNodesAccounts;
     return Object.entries(allAccounts).map(account => {
       let newAccount: string = account[1];
-      return <option>{newAccount}</option>;
+      return <option key={newAccount}>{newAccount}</option>;
     });
   }
 
