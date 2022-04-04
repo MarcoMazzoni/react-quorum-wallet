@@ -7,7 +7,8 @@ This is a simple PoC of a React-Redux WebApp interacting with a private Quorum n
 4. You can pick the node to log on by clicking on the Node header card.
 5. You can see the balance of each account on the Balance header card.
 
-![alt text](./quorum-react-img.jpg)
+![alt text](https://github.com/MarcoMazzoni/react-quorum-wallet/master/quorum-react-img.png?raw=true)
+
 
 
 # Requirements
