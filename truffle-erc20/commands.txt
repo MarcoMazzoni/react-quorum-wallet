@@ -1,0 +1,42 @@
+
+######################## IMPORTANTE #####################################
+1) SBLOCCA GLI ACCOUNTS ETHEREUM sui NODI DOCKER!! (Entra nella console)
+personal.unlockAccount(eth.accounts[0])
+
+2) Cambia le chiavi pubbliche dei nodi nel file "2_deploy_token.js"
+##########################################################################
+
+In TRUFFLE esegui questi comandi per avere un'istanza del contratto e degli accounts:
+
+MyToken.deployed().then((instance) => { ctk = instance; })
+
+ctk.address
+
+let accounts = await web3.eth.getAccounts()
+accounts[0]
+
+### Node 1
+ctk.balanceOf('0x00fcf62fbf6a49daf1dcd467e5037da77513ec11').then(a => console.log(a.toNumber()))
+
+### Node 2
+ctk.balanceOf('0x7f43d4206614afc946162d89b6a38a75f12b58f4').then(a => console.log(a.toNumber()))
+
+### Node 3
+ctk.balanceOf('0xe619f4b794bf2f67c26c93553085cd514c98c72a').then(a => console.log(a.toNumber()))
+
+### From node1 to node2
+ 	>> Il nodo 1 e il nodo 2 conoscono entrambi il contratto ma per avere successo la transazione deve contenere la keyworkd "privateFor" altrimenti non funziona:
+ ...NO ---> ctk.transfer('0x7f43d4206614afc946162d89b6a38a75f12b58f4', 1000)
+ ...SI ---> // Private transaction from node1 to node2
+
+ctk.transfer('0xe619f4b794bf2f67c26c93553085cd514c98c72a', 1000, {privateFor: ["PJgjStKa4/EOxFhE6Prt6E1dwOfp+Js70Y4XMqYBGVU="]})
+
+
+### From node1 to node3
+	>> Il nodo 3 non conosce il contratto poichè non è stato coinvolto nel deployment
+pertanto se il nodo 1 invia token al nodo 3 li perde, e il nodo 3 non li riceve
+	>> Il nodo 3 non può visualizzare il Balance dei nodi 1 e 2
+
+ctk.transfer('0xe619f4b794bf2f67c26c93553085cd514c98c72a', 1000)
+
+
