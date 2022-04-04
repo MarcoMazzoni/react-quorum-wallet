@@ -125,7 +125,6 @@ export class TransactionCard extends React.Component<
           privateFor: toTesseraKeys,
           isPrivate: true
         })
-        .catch((err: any) => console.log(err))
         .then((receipt: any) => {
           this.setState(prevState => ({
             receipt: {
@@ -142,6 +141,13 @@ export class TransactionCard extends React.Component<
             },
             successModalShow: true
           }));
+        })
+        .catch((err: any) => {
+          this.setState({
+            errorModalMsg: err,
+            errorModalShow: true
+          });
+          console.log(err)
         });
     }
   }

@@ -9,7 +9,7 @@ set -v
 cd 'config' && ./setup.sh && cd $current_dir
 
 ## Waiting for the blockchain nodes to start up  all the services 
-sleep 75
+sleep 60
 
 cd 'truffle-erc20'
 truffle migrate --reset
@@ -19,3 +19,5 @@ cd $current_dir
 sed -i '/contractAddress/c \ \ "contractAddress": "'"$contract_address"'",' $current_dir/src/quorum-config.json
 
 docker-compose up -d 
+
+#### You can now open the webapp on your browser ---> http://localhost:5001  
