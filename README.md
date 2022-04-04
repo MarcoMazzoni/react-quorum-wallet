@@ -1,4 +1,4 @@
-## Overview
+# Overview
 This is a simple PoC of a React-Redux WebApp interacting with a private Quorum network.
 
 1. You can make common transactions as well as **private transactions** (you can also choose which nodes to include in the private transactions).
@@ -7,14 +7,17 @@ This is a simple PoC of a React-Redux WebApp interacting with a private Quorum n
 4. You can pick the node to log on by clicking on the Node header card.
 5. You can see the balance of each account on the Balance header card.
 
-## Requirements
+![alt text](./quorum-react-img.jpg)
+
+
+# Requirements
 
 You need to have Truffle and Docker (also docker-compose) installed.
 * **Truffle**: https://trufflesuite.com/docs/truffle/getting-started/installation.html
 * **Docker**: https://docs.docker.com/engine/install/
 * **Docker Compose**: https://docs.docker.com/compose/install/
 
-## How to start the application
+# How to start the application
 
 In the project directory, you can run:
 ```
